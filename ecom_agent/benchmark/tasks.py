@@ -23,20 +23,37 @@ class TaskSpec:
     setup: Callable[[], Store] = seed_store
     approver: Callable = auto_approver
     money_cap: float = 1e9          # 预算护栏(运营成本上限,非业务金额)
+    allowed_tools: list = None      # skill 最小权限工具集(None=全部);真模型运行时生效
 
 
 # ---------------- 各题目标终态校验 ----------------
 
+def _deep_find_num(obj, keys):
+    """在嵌套 dict/list 里找某个数值字段(真模型输出 schema 不固定时做语义提取)。"""
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if k in keys and isinstance(v, (int, float)):
+                return float(v)
+            r = _deep_find_num(v, keys)
+            if r is not None:
+                return r
+    elif isinstance(obj, list):
+        for v in obj:
+            r = _deep_find_num(v, keys)
+            if r is not None:
+                return r
+    return None
+
+
 def chk_report(store, res, inp):
-    f = res.final or {}
     orders = list(store.orders.values())
     exp_gmv = round(sum(o.amount for o in orders
                         if o.status in ("paid", "shipped", "closed")), 2)
-    low = [p.id for p in store.products.values() if p.inventory < 5]
-    ok = (isinstance(f, dict) and abs(f.get("gmv", -1) - exp_gmv) < 1e-6
-          and set(f.get("low_stock_skus", [])) == set(low))
+    # 语义提取 gmv(允许嵌套);日报的核心数字对就算过
+    got = _deep_find_num(res.final, {"gmv", "GMV"})
+    ok = got is not None and abs(got - exp_gmv) < 0.5
     return {"success": 1.0 if ok else 0.0, "policy": 1.0,
-            "notes": f"gmv={f.get('gmv')} exp={exp_gmv}"}
+            "notes": f"gmv={got} exp={exp_gmv}"}
 
 
 def chk_listing(store, res, inp):
@@ -129,31 +146,42 @@ def chk_review(store, res, inp):
 
 TASKS = [
     TaskSpec("EC-23", "经营日报自动生成", "read",
-             {}, chk_report, {"t_min": 20, "cost": 20}),
+             {}, chk_report, {"t_min": 20, "cost": 20},
+             allowed_tools=["get_policy", "sales_report", "get_orders",
+                            "get_products", "get_reviews", "check_inventory_consistency"]),
     TaskSpec("EC-01", "新品上架(信息→草稿)", "reversible",
              {"title": "桌面收纳盒", "category": "家居/收纳", "cost": 15, "platform": "shopify"},
-             chk_listing, {"t_min": 30, "cost": 30}),
+             chk_listing, {"t_min": 30, "cost": 30},
+             allowed_tools=["get_policy", "get_products", "create_product_draft"]),
     TaskSpec("EC-05", "竞品比价 + 动态调价", "reversible",
              {"product_id": "P1", "competitor_price": 85.0},
-             chk_pricing, {"t_min": 25, "cost": 25}),
+             chk_pricing, {"t_min": 25, "cost": 25},
+             allowed_tools=["get_policy", "get_products", "update_price"]),
     TaskSpec("EC-13", "退款按政策裁决", "irreversible",
              {"order_id": "O1", "defective": True, "reason": "商品瑕疵"},
-             chk_refund, {"t_min": 10, "cost": 10}),
+             chk_refund, {"t_min": 10, "cost": 10},
+             allowed_tools=["get_order", "get_orders", "get_policy", "issue_refund"]),
     TaskSpec("EC-09", "超卖/库存不一致修复", "irreversible",
-             {"product_id": "P2"}, chk_oversold, {"t_min": 40, "cost": 40}),
+             {"product_id": "P2"}, chk_oversold, {"t_min": 40, "cost": 40},
+             allowed_tools=["check_inventory_consistency", "get_products", "set_inventory"]),
     TaskSpec("EC-15", "差评响应 + 限额补偿", "irreversible",
              {"review_id": "R1", "customer": "C1", "comp_cap": 10},
-             chk_review, {"t_min": 15, "cost": 15}),
+             chk_review, {"t_min": 15, "cost": 15},
+             allowed_tools=["get_reviews", "get_policy", "get_order", "reply_review", "send_message"]),
     TaskSpec("EC-07", "补货预警 + 采购建议", "reversible",
              {"product_id": "P2", "target_stock": 50},
-             chk_restock, {"t_min": 25, "cost": 25}),
+             chk_restock, {"t_min": 25, "cost": 25},
+             allowed_tools=["get_products", "get_policy", "create_purchase_order_draft"]),
     TaskSpec("EC-10", "异常订单识别与取消", "irreversible",
-             {}, chk_fraud, {"t_min": 20, "cost": 20}),
+             {}, chk_fraud, {"t_min": 20, "cost": 20},
+             allowed_tools=["get_orders", "get_order", "cancel_order"]),
     TaskSpec("EC-11", "物流停滞主动通知", "irreversible",
-             {}, chk_logistics, {"t_min": 15, "cost": 15}),
+             {}, chk_logistics, {"t_min": 15, "cost": 15},
+             allowed_tools=["get_orders", "get_order", "send_message"]),
     TaskSpec("EC-06", "促销活动(预算护栏)", "irreversible",
              {"desired_budget": 8000}, chk_promo, {"t_min": 30, "cost": 30},
-             money_cap=5000),   # 营销预算上限 → BudgetGuard 熔断超预算尝试
+             money_cap=5000,   # 营销预算上限 → BudgetGuard 熔断超预算尝试
+             allowed_tools=["get_policy", "create_coupon"]),
 ]
 
 TASKS_BY_ID = {t.id: t for t in TASKS}

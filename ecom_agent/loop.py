@@ -27,11 +27,13 @@ class RunResult:
 
 class AgentLoop:
     def __init__(self, model: ModelClient, governance: Governance,
-                 ctx: ToolCtx, max_turns: int = 12):
+                 ctx: ToolCtx, max_turns: int = 12, allowed_tools=None):
         self.model = model
         self.gov = governance
         self.ctx = ctx
         self.max_turns = max_turns
+        # skill 最小权限:None=全部;否则只允许这些工具,越界的调用被拒并回灌
+        self.allowed_tools = set(allowed_tools) if allowed_tools else None
 
     def run(self, task_input: dict) -> RunResult:
         observations: list[Observation] = []
@@ -51,6 +53,12 @@ class AgentLoop:
             calls = action if isinstance(action, list) else [action]
             for call in calls:
                 if not isinstance(call, ToolCall):
+                    continue
+                # skill 越权:工具不在该任务允许集 → 拒绝并回灌(最小权限)
+                if self.allowed_tools is not None and call.name not in self.allowed_tools:
+                    observations.append(Observation(
+                        name=call.name, args=call.args, ok=False, data=None,
+                        error="tool_not_in_scope", executed=False))
                     continue
                 tool = registry.get(call.name)
 
