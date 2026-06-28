@@ -124,14 +124,47 @@ def claude_cli_completion(model: str = "claude-sonnet-4-6", timeout: int = 150) 
             tokens = usage.get("input_tokens", 0) + usage.get("output_tokens", 0)
         except json.JSONDecodeError:
             text, tokens = proc.stdout, 600
-        m = re.search(r"\{.*\}", text, re.S)
-        if not m:
-            return {"final": {"raw": text[:200]}, "_tokens": tokens}
-        try:
-            decision = json.loads(m.group(0))
-        except json.JSONDecodeError:
-            return {"final": {"raw": text[:200]}, "_tokens": tokens}
+        decision = _extract_decision(text)
+        if decision is None:
+            return {"final": {"raw": text[:600]}, "_tokens": tokens}
         decision["_tokens"] = tokens
         return decision
 
     return _complete
+
+
+def _extract_decision(text: str):
+    """从模型自由文本里稳健地抽出一个决策 JSON:去 code fence、尝试整体解析、
+    再退化为扫描所有平衡花括号子串取最大可解析者。"""
+    import json
+    import re
+    if not text:
+        return None
+    t = text.strip()
+    t = re.sub(r"^```(?:json)?", "", t).strip()
+    t = re.sub(r"```$", "", t).strip()
+    try:
+        return json.loads(t)
+    except json.JSONDecodeError:
+        pass
+    # 扫描平衡花括号,收集所有可解析对象,取含 tool_calls/final 的最大者
+    candidates = []
+    depth, start = 0, None
+    for i, ch in enumerate(t):
+        if ch == "{":
+            if depth == 0:
+                start = i
+            depth += 1
+        elif ch == "}":
+            if depth > 0:
+                depth -= 1
+                if depth == 0 and start is not None:
+                    frag = t[start:i + 1]
+                    try:
+                        candidates.append(json.loads(frag))
+                    except json.JSONDecodeError:
+                        pass
+    for c in candidates:
+        if isinstance(c, dict) and ("tool_calls" in c or "final" in c):
+            return c
+    return candidates[-1] if candidates else None

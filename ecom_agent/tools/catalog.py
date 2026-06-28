@@ -55,6 +55,14 @@ def get_reviews(ctx, args):
     return ToolResult(True, out)
 
 
+@tool("submit_report", RiskTier.READ, True,
+      "提交结构化经营日报作为终态。args: gmv, orders, refund_rate, low_stock_skus")
+def submit_report(ctx, args):
+    ctx.store.submitted = dict(args)
+    _audit(ctx, "submit_report", {"keys": list(args.keys())})
+    return ToolResult(True, {"submitted": True})
+
+
 @tool("sales_report", RiskTier.READ, True, "汇总经营指标:GMV/订单数/退款率等")
 def sales_report(ctx, args):
     orders = list(ctx.store.orders.values())

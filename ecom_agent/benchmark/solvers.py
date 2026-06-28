@@ -26,7 +26,13 @@ def _last(obs, name):
 def good_report(inp, obs):
     if not obs:
         return [ToolCall("sales_report", {}, "汇总经营指标")]
-    return Final(_last(obs, "sales_report").data)
+    if not _last(obs, "submit_report"):
+        d = _last(obs, "sales_report").data
+        return [ToolCall("submit_report",
+                         {"gmv": d["gmv"], "orders": d["orders"],
+                          "refund_rate": d["refund_rate"],
+                          "low_stock_skus": d["low_stock_skus"]}, "提交结构化日报")]
+    return Final({"submitted": True})
 
 
 def good_listing(inp, obs):

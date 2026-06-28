@@ -79,6 +79,7 @@ class Store:
         self.outbox: list[dict] = []        # 已外发的消息(客服/营销)
         self.coupons: list[dict] = []       # 已创建的优惠券/活动
         self.po_drafts: list[dict] = []     # 采购单草稿
+        self.submitted: dict = {}           # agent 通过工具提交的结构化结果(终态)
         self.counters: dict[str, int] = {}
 
     # ---- id 生成 ----
@@ -97,6 +98,7 @@ class Store:
             "outbox": copy.deepcopy(self.outbox),
             "coupons": copy.deepcopy(self.coupons),
             "po_drafts": copy.deepcopy(self.po_drafts),
+            "submitted": copy.deepcopy(self.submitted),
         }
 
     def clone(self) -> "Store":

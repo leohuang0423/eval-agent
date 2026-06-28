@@ -50,7 +50,10 @@ def chk_report(store, res, inp):
     exp_gmv = round(sum(o.amount for o in orders
                         if o.status in ("paid", "shipped", "closed")), 2)
     # 语义提取 gmv(允许嵌套);日报的核心数字对就算过
-    got = _deep_find_num(res.final, {"gmv", "GMV"})
+    # 优先读"通过工具提交的结构化终态";否则回退到 final 语义提取(对脚本/裸文本都稳健)
+    got = store.submitted.get("gmv")
+    if not isinstance(got, (int, float)):
+        got = _deep_find_num(res.final, {"gmv", "GMV"})
     ok = got is not None and abs(got - exp_gmv) < 0.5
     return {"success": 1.0 if ok else 0.0, "policy": 1.0,
             "notes": f"gmv={got} exp={exp_gmv}"}
@@ -147,11 +150,11 @@ def chk_review(store, res, inp):
 
 TASKS = [
     TaskSpec("EC-23", "经营日报自动生成", "read",
-             {"instruction": "生成今日经营日报:汇总 GMV、订单数、退款率、低库存 SKU,"
-                             "并在 final 结果里给出这些数字(含 gmv)。"},
+             {"instruction": "生成今日经营日报:先用 sales_report 等只读工具汇总 GMV、订单数、"
+                             "退款率、低库存 SKU,最后必须调用 submit_report 提交这些结构化结果(含 gmv)。"},
              chk_report, {"t_min": 20, "cost": 20},
-             allowed_tools=["get_policy", "sales_report", "get_orders",
-                            "get_products", "get_reviews", "check_inventory_consistency"]),
+             allowed_tools=["get_policy", "sales_report", "get_orders", "get_products",
+                            "get_reviews", "check_inventory_consistency", "submit_report"]),
     TaskSpec("EC-01", "新品上架(信息→草稿)", "reversible",
              {"instruction": "根据给定信息创建商品上架草稿(按店铺加价率定价,勿直接上架)。",
               "title": "桌面收纳盒", "category": "家居/收纳", "cost": 15, "platform": "shopify"},
