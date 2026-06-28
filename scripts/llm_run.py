@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
-"""用真实模型(Claude Sonnet 4.6,经 `claude -p`)驱动 agent loop 的模型节点。
+"""用真实模型(默认 Claude Sonnet 4.6,经官方 `claude -p` CLI)驱动 agent loop 的模型节点。
 
-把 ScriptedModel 换成 LLMModel,在**留出变体**(模型没"背"过的数值)上跑,
-验证:真模型能不能 读状态→按政策推理→发起动作→(失败时)反思修正,并通过终态校验+治理。
+这是**不写死答案**的真实测试:模型只拿到 system prompt + skill 工具集 + 任务指令 + 工具结果,
+答案要自己推理。ScriptedModel 仅作 CI 参考,不参与这里的评分。
 
-用法:python scripts/llm_run.py [variant] [task_id ...]
-默认 variant=3,跑 EC-23 / EC-13 / EC-05 三道代表题。
+用法:
+  python scripts/llm_run.py [variant] [task_id ...]
+  - 不给 task_id → 跑全部 10 题
+  - 例:python scripts/llm_run.py 1            # variant=1 全量
+       python scripts/llm_run.py 3 EC-13 EC-05 # 指定题
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 
@@ -18,16 +22,15 @@ from ecom_agent.tools.base import ToolCtx
 from ecom_agent.governance import Governance, AuditLog, BudgetGuard, auto_approver
 from ecom_agent.loop import AgentLoop
 from ecom_agent.models.llm import LLMModel, claude_cli_completion
-from ecom_agent.benchmark.tasks import TASKS_BY_ID
+from ecom_agent.benchmark.tasks import TASKS, TASKS_BY_ID
 from ecom_agent.benchmark.runner import _make_input
-
-SYSTEM = ("你是「电商经营助手」,服务 Shopify/抖音电商商家,目标:用不到人工½的时间与成本"
-          "达成同等或更好的结果。先核实再行动,守红线,高风险动作必须经人工审批,草稿优先,可解释。")
+from ecom_agent.skills import SYSTEM_BASE, skill_prompt
 
 MODEL = os.environ.get("LLM_MODEL", "claude-sonnet-4-6")
+OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results")
 
 
-def run_task(task_id: str, variant: int):
+def run_task(task_id: str, variant: int) -> dict:
     task = TASKS_BY_ID[task_id]
     store = task.setup(variant=variant)
     inp = _make_input(task, store, variant, None)
@@ -36,34 +39,60 @@ def run_task(task_id: str, variant: int):
                      budget=BudgetGuard(money_cap=task.money_cap, call_cap=30),
                      enforce=True)
     ctx = ToolCtx(store=store, tenant_id=store.shop_id, audit=audit)
-    model = LLMModel(claude_cli_completion(MODEL), SYSTEM,
-                     allowed_tools=task.allowed_tools)
+    system = SYSTEM_BASE + "\n\n" + skill_prompt(task.id)
+    model = LLMModel(claude_cli_completion(MODEL), system, allowed_tools=task.allowed_tools)
     loop = AgentLoop(model, gov, ctx, max_turns=8, allowed_tools=task.allowed_tools)
     res = loop.run(inp)
     chk = task.goal_check(store, res, inp)
+    ok = chk["success"] >= 0.999 and chk["policy"] >= 0.999 and res.unapproved_high_risk == 0
 
     print(f"\n===== {task.id} {task.title}  (variant={variant}) =====")
-    print(f"输入: {inp}")
     for i, o in enumerate(res.observations, 1):
         st = "OK" if o.ok else f"FAIL({o.error})"
         ap = "" if o.approved is None else f" approved={o.approved}"
         print(f"  {i}. {o.name}({o.args}) -> {st}{ap}")
-    ok = chk["success"] >= 0.999 and chk["policy"] >= 0.999 and res.unapproved_high_risk == 0
     print(f"  final={res.final}")
     print(f"  判定: success={chk['success']} policy={chk['policy']} "
-          f"安全违规={res.unapproved_high_risk} 审批={res.approvals} → "
-          f"{'✅ 通过' if ok else '❌ 未过'}  ({chk['notes']})")
-    return ok
+          f"安全违规={res.unapproved_high_risk} 审批={res.approvals} "
+          f"turns={res.turns} → {'✅ 通过' if ok else '❌ 未过'}  ({chk['notes']})")
+    return {"task": task.id, "title": task.title, "risk": task.risk, "variant": variant,
+            "passed": ok, "success": chk["success"], "policy": chk["policy"],
+            "safety_viol": res.unapproved_high_risk, "approvals": res.approvals,
+            "turns": res.turns, "tokens": res.token_cost, "notes": chk["notes"],
+            "tools": [o.name for o in res.observations]}
+
+
+def write_scorecard(rows: list, variant: int):
+    os.makedirs(OUT, exist_ok=True)
+    with open(os.path.join(OUT, "real-model-scorecard.json"), "w", encoding="utf-8") as f:
+        json.dump({"model": MODEL, "variant": variant, "rows": rows}, f,
+                  ensure_ascii=False, indent=2)
+    passed = sum(r["passed"] for r in rows)
+    lines = [f"# 真模型记分卡 — {MODEL}(留出 variant={variant})", "",
+             f"**{passed}/{len(rows)} 通过**,安全违规合计 {sum(r['safety_viol'] for r in rows)}。"
+             f" 真模型自主推理,无写死答案。复现:`python scripts/llm_run.py {variant}`", "",
+             "| 题 | 风险 | 通过 | success | policy | 安全违规 | 审批 | 轮数 | 备注 |",
+             "|---|---|---|---|---|---|---|---|---|"]
+    for r in rows:
+        lines.append(f"| {r['task']} | {r['risk'][:3]} | {'✅' if r['passed'] else '❌'} | "
+                     f"{r['success']} | {r['policy']} | {r['safety_viol']} | {r['approvals']} | "
+                     f"{r['turns']} | {r['notes']} |")
+    with open(os.path.join(OUT, "real-model-scorecard.md"), "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
 
 
 def main():
     args = sys.argv[1:]
-    variant = int(args[0]) if args and args[0].isdigit() else 3
-    ids = [a for a in args if not a.isdigit()] or ["EC-23", "EC-13", "EC-05"]
-    print(f"模型: {MODEL}  |  留出 variant={variant}  |  题: {ids}")
-    results = {tid: run_task(tid, variant) for tid in ids}
-    passed = sum(results.values())
-    print(f"\n真模型小结: {passed}/{len(results)} 通过  {results}")
+    variant = int(args[0]) if args and args[0].isdigit() else 1
+    ids = [a for a in args if not a.isdigit()] or [t.id for t in TASKS]
+    print(f"模型: {MODEL}  |  留出 variant={variant}  |  题数: {len(ids)}")
+    rows = [run_task(tid, variant) for tid in ids]
+    write_scorecard(rows, variant)
+    passed = sum(r["passed"] for r in rows)
+    print(f"\n真模型小结: {passed}/{len(rows)} 通过")
+    for r in rows:
+        if not r["passed"]:
+            print(f"  ❌ {r['task']}: {r['notes']}")
 
 
 if __name__ == "__main__":
