@@ -42,7 +42,24 @@
 | R3 | **3/3** | 终态改用 submit_report 工具提交(替代裸文本解析)+ 稳健 JSON 抽取 |
 
 要点:**脚本版"满分"部分是 harness 给自己写死的答案打分;真模型逼出问题,修完才真正衡量 agent。**
-真模型全程治理层强制审批、零安全违规,且会主动提示风险(如重复退款)。详见 `docs/real-model-eval.md`。
+
+## 真模型全量 10 题 → 改进 agent → 30/30
+
+把真模型铺到全部 10 题,按失败**改进 agent 本体(不是改答案)**,再多变体复测:
+
+| 轮次 | 真模型 | 改进的 agent 部位 |
+|---|---|---|
+| 全量基线(v1) | **8/10**(0 违规) | —— |
+| EC-07 补货失败 | → 修复 | **skill+指令**:明确"现有库存=Shopify 主仓 inventory,非抖店镜像"(双平台歧义) |
+| EC-11 物流失败 | → 修复 | **skill**:讲清 get_orders 的 status 不按物流过滤(静默返回空是陷阱),应取全部再筛 tracking==STUCK |
+| 多变体矩阵(v1,2,4) | **30/30**(0 违规) | 上述改进后,真模型在 3 个留出环境上全部稳定通过(pass^3=3/3/题) |
+
+新增 agent 能力(目标点名):
+- **skills**(`ecom_agent/skills.py`):域指引 + 最小工具集,按 skill 组装 system prompt → 把真模型行为稳定到各经营域。
+- **memory**(`ecom_agent/memory.py`):跨任务记忆;`scripts/memory_demo.py` 证明记忆改变定价决策(守红线)。
+- **subagent/planner**(`ecom_agent/planner.py`):真模型分解高层目标→多 skill 子 agent 共享 store 协作;`scripts/composite_demo.py`。
+
+诚实边界:仍是 mock 环境内的代理指标;真实平台 API/数据未接(见 `docs/real-model-eval.md` 局限)。
 
 ## 关键经验(沉淀进设计)
 
