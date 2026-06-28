@@ -180,7 +180,8 @@ TASKS = [
              chk_review, {"t_min": 15, "cost": 15},
              allowed_tools=["get_reviews", "get_policy", "get_order", "reply_review", "send_message"]),
     TaskSpec("EC-07", "补货预警 + 采购建议", "reversible",
-             {"instruction": "为该商品补货到目标库存 target_stock,生成采购单草稿(数量=目标-现有)。",
+             {"instruction": "为该商品补货到目标库存 target_stock,生成采购单草稿:"
+                             "数量 = target_stock − 该商品 Shopify 主仓现有 inventory(不要用抖店镜像库存)。",
               "product_id": "P2", "target_stock": 50},
              chk_restock, {"t_min": 25, "cost": 25},
              allowed_tools=["get_products", "get_policy", "create_purchase_order_draft"]),

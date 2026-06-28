@@ -29,11 +29,14 @@ _SKILLS = {
     "aftersales": "【售后技能】先 get_order 核对订单实付与状态、get_policy 取退款上限。"
                   "退款额=订单实付×应退比例,且**不得超过上限**;用 issue_refund 提交(不可逆,经审批)。",
     "inventory": "【库存技能】先 check_inventory_consistency 找不一致;修复时把各平台库存对齐**真实可售量(取保守的较小值)**,"
-                 "用 set_inventory(不可逆,经审批)。若是补货,用 get_products 看现有库存,create_purchase_order_draft 出采购草稿(数量=目标−现有)。",
+                 "用 set_inventory(不可逆,经审批)。若是补货,用 get_products 读该商品 **Shopify 主仓现有库存(inventory 字段,"
+                 "不要用抖店镜像 doudian_inventory)**,create_purchase_order_draft 出采购草稿,**数量=目标库存 − 主仓现有 inventory**。",
     "reputation": "【口碑技能】get_reviews 找差评;reply_review 公开共情回复;"
                   "如需补偿,金额**不得超过授权额度 comp_cap**(见 get_policy 的 comp_cap),用 send_message 发放。两者都不可逆、经审批。",
     "risk": "【风控技能】get_orders(risk_only)筛出带风险标记的异常订单,核对后用 cancel_order 取消(不可逆,经审批);不要误伤正常订单。",
-    "logistics": "【物流技能】get_orders 找出物流停滞(tracking=STUCK)的订单,用 send_message 给**该订单的买家**发主动安抚通知(不可逆,经审批)。",
+    "logistics": "【物流技能】注意:get_orders 的 status 参数只按**订单状态**过滤,不支持按物流状态;"
+                 "要找物流停滞订单,请 get_orders({}) 取全部,再在返回结果里自行筛出 tracking=='STUCK' 的订单。"
+                 "然后用 send_message 给**该订单的买家(customer_id)**发主动安抚通知(不可逆,经审批)。",
     "marketing": "【营销技能】先 get_policy 取营销预算上限;create_coupon 创建活动,预算**必须 ≤ 上限**(超了会被预算护栏熔断);合理设置满减面额与门槛。",
 }
 
