@@ -62,37 +62,49 @@ def run_task(task_id: str, variant: int) -> dict:
             "tools": [o.name for o in res.observations]}
 
 
-def write_scorecard(rows: list, variant: int):
+def write_matrix(all_rows: list, variants: list, ids: list):
+    """写 task×variant 通过矩阵 + pass^k(每题在各留出变体上的通过率)。"""
     os.makedirs(OUT, exist_ok=True)
-    with open(os.path.join(OUT, "real-model-scorecard.json"), "w", encoding="utf-8") as f:
-        json.dump({"model": MODEL, "variant": variant, "rows": rows}, f,
-                  ensure_ascii=False, indent=2)
-    passed = sum(r["passed"] for r in rows)
-    lines = [f"# 真模型记分卡 — {MODEL}(留出 variant={variant})", "",
-             f"**{passed}/{len(rows)} 通过**,安全违规合计 {sum(r['safety_viol'] for r in rows)}。"
-             f" 真模型自主推理,无写死答案。复现:`python scripts/llm_run.py {variant}`", "",
-             "| 题 | 风险 | 通过 | success | policy | 安全违规 | 审批 | 轮数 | 备注 |",
-             "|---|---|---|---|---|---|---|---|---|"]
-    for r in rows:
-        lines.append(f"| {r['task']} | {r['risk'][:3]} | {'✅' if r['passed'] else '❌'} | "
-                     f"{r['success']} | {r['policy']} | {r['safety_viol']} | {r['approvals']} | "
-                     f"{r['turns']} | {r['notes']} |")
+    by = {(r["task"], r["variant"]): r for r in all_rows}
+    total_viol = sum(r["safety_viol"] for r in all_rows)
+    npass = sum(r["passed"] for r in all_rows)
+    lines = [f"# 真模型记分卡 — {MODEL}", "",
+             f"留出变体 {variants};**{npass}/{len(all_rows)} 通过**,安全违规合计 **{total_viol}**。"
+             f" 真模型自主推理、无写死答案。复现:`python scripts/llm_run.py {','.join(map(str,variants))}`", "",
+             "| 题 | " + " | ".join(f"v{v}" for v in variants) + " | pass^k |",
+             "|---|" + "|".join("---" for _ in variants) + "|---|"]
+    for tid in ids:
+        cells, cnt = [], 0
+        for v in variants:
+            r = by.get((tid, v))
+            ok = bool(r and r["passed"])
+            cnt += 1 if ok else 0
+            cells.append("✅" if ok else ("❌" if r else "—"))
+        lines.append(f"| {tid} | " + " | ".join(cells) + f" | {cnt}/{len(variants)} |")
     with open(os.path.join(OUT, "real-model-scorecard.md"), "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
+    with open(os.path.join(OUT, "real-model-scorecard.json"), "w", encoding="utf-8") as f:
+        json.dump({"model": MODEL, "variants": variants, "rows": all_rows},
+                  f, ensure_ascii=False, indent=2)
 
 
 def main():
     args = sys.argv[1:]
-    variant = int(args[0]) if args and args[0].isdigit() else 1
-    ids = [a for a in args if not a.isdigit()] or [t.id for t in TASKS]
-    print(f"模型: {MODEL}  |  留出 variant={variant}  |  题数: {len(ids)}")
-    rows = [run_task(tid, variant) for tid in ids]
-    write_scorecard(rows, variant)
-    passed = sum(r["passed"] for r in rows)
-    print(f"\n真模型小结: {passed}/{len(rows)} 通过")
-    for r in rows:
+    vtok = args[0] if args and args[0][0].isdigit() else "1"
+    variants = [int(x) for x in vtok.split(",") if x.strip().isdigit()]
+    ids = [a for a in args if not a[0].isdigit()] or [t.id for t in TASKS]
+    print(f"模型: {MODEL}  |  留出变体: {variants}  |  题数: {len(ids)}")
+    all_rows = []
+    for v in variants:
+        print(f"\n######## variant {v} ########")
+        for tid in ids:
+            all_rows.append(run_task(tid, v))
+    write_matrix(all_rows, variants, ids)
+    npass = sum(r["passed"] for r in all_rows)
+    print(f"\n真模型总小结: {npass}/{len(all_rows)} 通过(变体 {variants})")
+    for r in all_rows:
         if not r["passed"]:
-            print(f"  ❌ {r['task']}: {r['notes']}")
+            print(f"  ❌ {r['task']} v{r['variant']}: {r['notes']}")
 
 
 if __name__ == "__main__":
