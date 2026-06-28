@@ -116,15 +116,37 @@ for turn in range(max_turns):
 | `marketing`(营销) | send_message, (ads adapter) | 预算上限/频控 | EC-17~22 |
 | `analytics`(分析) | sales_report, ... | 只读 | EC-23/24/25 |
 
-**好处**:每个 skill 工具集最小化(最小权限)、域政策内聚、可独立评测与迭代;长任务(EC-28)由 planner 编排多个 skill + 多次审批。
+**好处**:每个 skill 工具集最小化(最小权限)、域政策内聚、可独立评测与迭代;长任务由 planner 编排多个 skill + 多次审批。
+
+**已落地**:`ecom_agent/skills.py` —— `SYSTEM_BASE` 通用纪律 + 9 个域 skill 指引 + `SKILL_TOOLS` 最小工具集 + task→skill 路由。真模型按 skill 组装 system prompt(`scripts/llm_run.py`)。
+
+---
+
+## 6.5 Subagent / Planner(`ecom_agent/planner.py`)
+
+- **plan_with_llm(objective)**:真模型把高层目标(如"大促备战")分解为有序 `(skill, instruction)` 步骤。
+- **run_subagent**:在共享 `store` 上跑一个 **skill 限域**子 agent(各自最小权限工具 + 域提示 + 治理 + memory)。
+- **dispatch**:按计划逐步派发,子 agent 协作改同一份经营状态,高风险动作全程经审批。
+- demo:`python scripts/composite_demo.py`(真模型规划 + 多 skill 子 agent 协作)。
+
+对应 OpenAI handoffs / Anthropic sub-agents:分工、最小权限、可独立评测。
+
+## 6.6 Memory(`ecom_agent/memory.py`)
+
+- 按租户持久:`semantic`(商家偏好/店铺画像,影响决策)+ `episodic`(过往动作,近因优先)。
+- 召回注入 system prompt;让 agent "记住这家店怎么经营",而非每次从零开始。
+- demo:`python scripts/memory_demo.py` —— 同一道调价题,换不同店铺记忆,真模型定价随之变化(仍守毛利红线)。
 
 ---
 
 ## 7. 复现与验证
 
 ```bash
-python scripts/report.py            # 生成 results/scorecard.{json,md}
-python -m unittest tests.test_smoke -v   # 9 项回归(治理决定性/效率/红线 guard)
+python scripts/report.py                       # 脚本参考解记分卡(CI)
+python scripts/llm_run.py 1,2,4                 # 真模型 × 多留出变体记分卡 → results/real-model-scorecard.md
+python scripts/memory_demo.py                   # 记忆改变决策
+python scripts/composite_demo.py                # planner + 子 agent 复合任务
+python -m unittest tests.test_smoke -v          # 12 项回归(治理/效率/红线/记忆/子agent)
 ```
 
 最终结论:**环境**用 mock→适配器两态合一;**工具**风险分级 + 纵深防御;**loop** 薄而可插拔 model;**权限**靠自建治理层(default-deny + HITL + 护栏 + 审计);**system prompt + skills** 把"先核实、守红线、高风险必审批、草稿优先"固化为模型行为。能力(brain/prompt)与安全(治理层)正交,二者齐备才既快又对又安全。

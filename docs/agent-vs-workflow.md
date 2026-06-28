@@ -22,10 +22,12 @@
 | 执行 Execution | ✅ 真 | 工具真改状态、治理真拦截、终态真校验(`results/scorecard.md`) |
 | 反思 Reflection(结构) | ✅ 闭环结构已具备 | `scripts/reflection_demo.py`:过度退款被拒→读 error→修正→通过,**单次 run 内闭环** |
 | 状态驱动决策(非死记) | ✅ 已验证 | `scripts/generalization.py`:30 个随机留出环境,GOOD 100% vs 背常数 MEMORIZER 70%(数值题归零) |
-| 推理 Reasoning | ✅ 已接真模型验证 | **Claude Sonnet 4.6 在环**:留出数据上读状态→按政策算→执行,3/3 通过(`docs/real-model-eval.md`) |
-| 规划 Planning(开放目标分解) | ⚠️ 部分 | 真模型能在单任务内规划多步工具序列;跨任务 planner/sub-agent 仍未实现 |
-| 自主反思(谁来反思) | ⚠️ 半 | loop **支持**反思闭环,但现在由手写 brain 触发,不是模型自主 |
-| 业务结果改进 | ⚠️ 未证 | mock 内可测;真实 API/数据/基线未接,½时间½成本是建模常数 |
+| 推理 Reasoning | ✅ 已接真模型验证 | **Claude Sonnet 4.6 在环**:留出数据上读状态→按政策算→执行(`docs/real-model-eval.md` / `results/real-model-scorecard.md`) |
+| 规划 Planning(开放目标分解) | ✅ 已实现 | `ecom_agent/planner.py`:真模型 plan_with_llm 分解高层目标→dispatch 多 skill 子 agent(`scripts/composite_demo.py`) |
+| 子 agent Sub-agent | ✅ 已实现 | skill 限域子 agent 共享 store/治理/memory(`planner.run_subagent`) |
+| 记忆 Memory | ✅ 已实现 | `ecom_agent/memory.py`:跨任务 semantic/episodic 持久 + 注入;`scripts/memory_demo.py` 证明记忆改变定价决策 |
+| 自主反思(谁来反思) | ✅ 真模型自主 | 真模型读工具 error 自行修正(基线里多处),loop 的反思闭环不再靠手写 brain |
+| 业务结果改进 | ⚠️ 未证(诚实保留) | mock 内可测;**真实平台 API/数据/基线未接**,½时间½成本仍是建模常数 |
 
 ## 3. 两个能用代码说话的证据
 
