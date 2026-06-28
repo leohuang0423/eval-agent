@@ -45,9 +45,33 @@ _ROUTE = {
 }
 
 
+# 各 skill 的最小工具集(subagent/planner 按 skill 取工具,落实最小权限)
+SKILL_TOOLS = {
+    "analytics": ["get_policy", "sales_report", "get_orders", "get_products",
+                  "get_reviews", "check_inventory_consistency", "submit_report"],
+    "listing": ["get_policy", "get_products", "create_product_draft"],
+    "pricing": ["get_policy", "get_products", "update_price"],
+    "aftersales": ["get_order", "get_orders", "get_policy", "issue_refund"],
+    "inventory": ["check_inventory_consistency", "get_products", "get_policy",
+                  "set_inventory", "create_purchase_order_draft"],
+    "reputation": ["get_reviews", "get_policy", "get_order", "reply_review", "send_message"],
+    "risk": ["get_orders", "get_order", "cancel_order"],
+    "logistics": ["get_orders", "get_order", "send_message"],
+    "marketing": ["get_policy", "create_coupon"],
+}
+
+
 def skill_for(task_id: str) -> str:
     return _ROUTE.get(task_id, "analytics")
 
 
+def skill_prompt_by_name(skill: str) -> str:
+    return _SKILLS.get(skill, _SKILLS["analytics"])
+
+
 def skill_prompt(task_id: str) -> str:
     return _SKILLS[skill_for(task_id)]
+
+
+def all_skills() -> list:
+    return list(_SKILLS.keys())

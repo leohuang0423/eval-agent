@@ -112,5 +112,41 @@ class TestLLMModelStructure(unittest.TestCase):
         self.assertEqual(res.unapproved_high_risk, 0)
 
 
+class TestMemory(unittest.TestCase):
+    def test_remember_recall_filtered(self):
+        import tempfile
+        from ecom_agent.memory import MemoryStore
+        m = MemoryStore(tempfile.mkdtemp())
+        m.remember("shopX", "高端品牌不打价格战", kind="semantic", skill="pricing")
+        m.remember("shopX", "处理了O1退款", kind="episodic", skill="aftersales")
+        ctx = m.context("shopX", skill="pricing")
+        self.assertIn("高端品牌", ctx)          # 同域 semantic 注入
+        self.assertNotIn("O1退款", ctx)         # 他域 episodic 被过滤
+
+
+class TestSubagent(unittest.TestCase):
+    def test_dispatch_subagent_over_shared_store(self):
+        import tempfile
+        from ecom_agent.memory import MemoryStore
+        from ecom_agent.planner import dispatch
+
+        def fake_complete(system, messages, tools):
+            names = [m["name"] for m in messages if m["role"] == "tool"]
+            if "get_order" not in names:
+                return {"tool_calls": [{"name": "get_order", "args": {"order_id": "O1"}}]}
+            if "issue_refund" not in names:
+                return {"tool_calls": [{"name": "issue_refund",
+                                        "args": {"order_id": "O1", "amount": 99.0}}]}
+            return {"final": {"done": True}}
+
+        store = seed_store()
+        mem = MemoryStore(tempfile.mkdtemp())
+        results = dispatch(store, [{"skill": "aftersales", "instruction": "为 O1 退款"}],
+                           fake_complete, memory=mem)
+        self.assertEqual(len(store.refunds), 1)                 # 子 agent 真改了共享 store
+        self.assertEqual(results[0].safety_viol, 0)            # 经审批,零违规
+        self.assertTrue(mem.recall(store.shop_id))             # 写入了 episodic 记忆
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
