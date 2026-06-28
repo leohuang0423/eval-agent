@@ -102,7 +102,7 @@
           "approvals": 0
         },
         "reliability_pass_rate": 0.0,
-        "notes": "price=99 target=84.15 floor=46.00",
+        "notes": "price=99 comp=85.0 floor=46.00 区间[80.75,85.0]",
         "turns": 2,
         "stopped": "final"
       },
@@ -435,7 +435,7 @@
           "approvals": 0
         },
         "reliability_pass_rate": 1.0,
-        "notes": "price=84.15 target=84.15 floor=46.00",
+        "notes": "price=84.15 comp=85.0 floor=46.00 区间[80.75,85.0]",
         "turns": 4,
         "stopped": "final"
       },
@@ -768,7 +768,7 @@
           "approvals": 1
         },
         "reliability_pass_rate": 1.0,
-        "notes": "price=84.15 target=84.15 floor=46.00",
+        "notes": "price=84.15 comp=85.0 floor=46.00 区间[80.75,85.0]",
         "turns": 4,
         "stopped": "final"
       },
