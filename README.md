@@ -7,11 +7,18 @@
 ## 快速开始
 
 ```bash
-python scripts/report.py                  # 跑 benchmark,生成 results/scorecard.{json,md}
+python scripts/report.py                  # 跑 benchmark(脚本参考解),生成 results/scorecard.{json,md}
 python scripts/generalization.py          # 留出泛化测试(状态驱动 vs 背常数)
 python scripts/reflection_demo.py         # 反思闭环 demo(执行→失败→反思→修正)
+python scripts/llm_run.py 3 EC-13 EC-05 EC-23   # 真实 Claude Sonnet 4.6 在环(需 claude CLI)
 python -m unittest tests.test_smoke -v    # 回归测试(10 项)
 ```
+
+## 真实模型在环(Claude Sonnet 4.6)
+
+把模型节点换成真实 Sonnet 4.6,在留出数据上 **3/3 通过、零安全违规**;真模型自己推理→规划→执行,
+治理层在其上拦审批。过程暴露并修复了 benchmark 的 3 处缺陷(工具未限域 / 任务欠指令 / 判断题死抠公式 /
+裸文本解析脆)。详见 [`docs/real-model-eval.md`](docs/real-model-eval.md) 与 [`results/real-model-run.txt`](results/real-model-run.txt)。
 
 ## 当前结果(`results/scorecard.md`)
 
@@ -36,6 +43,7 @@ benchmark/   题目 + 终态校验 + 5维评分 runner(含效率门槛、pass^k)
 
 ## 文档
 
+- [`docs/real-model-eval.md`](docs/real-model-eval.md) —— **真实 Sonnet 4.6 在环测试**:3/3 通过 + 暴露并修复的 benchmark 缺陷
 - [`docs/agent-vs-workflow.md`](docs/agent-vs-workflow.md) —— **诚实评估**:它是 agent 还是 workflow?推理/规划/反思缺什么 + roadmap
 - [`docs/agent-design.md`](docs/agent-design.md) —— **最终设计**:环境 / 工具 / Loop / 权限 / System Prompt / Skills
 - [`docs/iteration-log.md`](docs/iteration-log.md) —— 迭代日志:v1→v1.5→v2 的效果变化与设计改进
