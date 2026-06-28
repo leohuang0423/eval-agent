@@ -118,9 +118,10 @@ def update_price(ctx, args):
 @tool("create_purchase_order_draft", RiskTier.REVERSIBLE, True,
       "创建采购单草稿。args: product_id, qty")
 def create_po_draft(ctx, args):
-    _audit(ctx, "create_po_draft", {"product_id": args["product_id"], "qty": args["qty"]})
-    return ToolResult(True, {"po": "draft", "product_id": args["product_id"],
-                             "qty": int(args["qty"]), "status": "draft"})
+    entry = {"product_id": args["product_id"], "qty": int(args["qty"]), "status": "draft"}
+    ctx.store.po_drafts.append(entry)
+    _audit(ctx, "create_po_draft", entry)
+    return ToolResult(True, {"po": "draft", **entry})
 
 
 # ============ 🔴 IRREVERSIBLE / 涉资金 ============
@@ -180,6 +181,18 @@ def send_message(ctx, args):
     _audit(ctx, "send_message", {"to": args["to"], "channel": entry["channel"],
                                  "comp_amount": args.get("comp_amount", 0)})
     return ToolResult(True, {"sent": True}, money_cost=0.05)
+
+
+@tool("create_coupon", RiskTier.IRREVERSIBLE, False,
+      "创建优惠券/活动(不可逆,占用营销预算)。args: name, budget, face, threshold",
+      cost_fn=lambda a: float(a.get("budget", 0)))
+def create_coupon(ctx, args):
+    budget = float(args["budget"])
+    entry = {"name": args["name"], "budget": budget,
+             "face": args.get("face"), "threshold": args.get("threshold")}
+    ctx.store.coupons.append(entry)
+    _audit(ctx, "create_coupon", entry)
+    return ToolResult(True, {"coupon": args["name"], "budget": budget}, money_cost=budget)
 
 
 @tool("reply_review", RiskTier.IRREVERSIBLE, False,

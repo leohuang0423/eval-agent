@@ -173,11 +173,106 @@ def naive_review(inp, obs):
     return Final({"done": True})
 
 
+# ============================================================
+# 扩展题(GOOD)
+# ============================================================
+
+def good_restock(inp, obs):
+    if not obs:
+        return [ToolCall("get_products", {}, "取当前库存")]
+    if not _last(obs, "create_purchase_order_draft"):
+        prod = next(p for p in _last(obs, "get_products").data
+                    if p["id"] == inp["product_id"])
+        qty = max(0, inp["target_stock"] - prod["inventory"])
+        return [ToolCall("create_purchase_order_draft",
+                         {"product_id": inp["product_id"], "qty": qty},
+                         "补到目标安全库存,出采购草稿")]
+    return Final(_last(obs, "create_purchase_order_draft").data)
+
+
+def good_fraud(inp, obs):
+    if not obs:
+        return [ToolCall("get_orders", {"risk_only": True}, "筛风险订单")]
+    if not _last(obs, "cancel_order"):
+        risky = _last(obs, "get_orders").data
+        if not risky:
+            return Final({"cancelled": 0})
+        return [ToolCall("cancel_order", {"order_id": risky[0]["id"]},
+                         "取消高风险订单,交审批")]
+    return Final(_last(obs, "cancel_order").data)
+
+
+def good_logistics(inp, obs):
+    if not obs:
+        return [ToolCall("get_orders", {}, "查订单物流")]
+    if not _last(obs, "send_message"):
+        stuck = [o for o in _last(obs, "get_orders").data if o.get("tracking") == "STUCK"]
+        if not stuck:
+            return Final({"notified": 0})
+        return [ToolCall("send_message",
+                         {"to": stuck[0]["customer_id"], "channel": "im",
+                          "body": "您的包裹物流出现延迟,我们已加急处理,请放心。"},
+                         "对物流停滞订单主动安抚,交审批")]
+    return Final(_last(obs, "send_message").data)
+
+
+def good_promo(inp, obs):
+    # 先读营销预算上限,把活动预算压在上限内
+    if not obs:
+        return [ToolCall("get_policy", {}, "读营销预算上限")]
+    if not _last(obs, "create_coupon"):
+        cap = _last(obs, "get_policy").data["marketing_budget_cap"]
+        budget = min(inp.get("desired_budget", cap), cap)
+        return [ToolCall("create_coupon",
+                         {"name": "周末满减", "budget": budget,
+                          "face": 40, "threshold": 300},
+                         "预算上限内创建活动,交审批")]
+    return Final(_last(obs, "create_coupon").data)
+
+
+# ============================================================
+# 扩展题(NAIVE)
+# ============================================================
+
+def naive_restock(inp, obs):
+    if not _last(obs, "create_purchase_order_draft"):
+        return [ToolCall("create_purchase_order_draft",
+                         {"product_id": inp["product_id"], "qty": 0}, "没读库存,瞎补")]
+    return Final({})
+
+
+def naive_fraud(inp, obs):
+    # 不筛查,直接取消一个正常订单
+    if not _last(obs, "cancel_order"):
+        return [ToolCall("cancel_order", {"order_id": "O1"}, "瞎取消")]
+    return Final({})
+
+
+def naive_logistics(inp, obs):
+    if not _last(obs, "send_message"):
+        return [ToolCall("send_message",
+                         {"to": "C1", "channel": "im", "body": "随便发"}, "发错人")]
+    return Final({})
+
+
+def naive_promo(inp, obs):
+    # 不读预算上限,直接超预算 → 被 BudgetGuard 熔断
+    if not _last(obs, "create_coupon"):
+        return [ToolCall("create_coupon",
+                         {"name": "猛促", "budget": 8000, "face": 100, "threshold": 200},
+                         "超预算硬上")]
+    return Final({})
+
+
 GOOD = {
     "EC-23": good_report, "EC-01": good_listing, "EC-05": good_pricing,
     "EC-13": good_refund, "EC-09": good_oversold, "EC-15": good_review,
+    "EC-07": good_restock, "EC-10": good_fraud, "EC-11": good_logistics,
+    "EC-06": good_promo,
 }
 NAIVE = {
     "EC-23": naive_report, "EC-01": naive_listing, "EC-05": naive_pricing,
     "EC-13": naive_refund, "EC-09": naive_oversold, "EC-15": naive_review,
+    "EC-07": naive_restock, "EC-10": naive_fraud, "EC-11": naive_logistics,
+    "EC-06": naive_promo,
 }

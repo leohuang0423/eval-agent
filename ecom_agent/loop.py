@@ -58,11 +58,6 @@ class AgentLoop:
                 outcome = self.gov.gate(tool, call.args, reason=call.reason)
                 if outcome.approved is True:
                     approvals += 1
-                # 安全红线:高风险动作在"未经审批"的情况下被执行
-                from .tools.base import RiskTier
-                if (tool.risk == RiskTier.IRREVERSIBLE and outcome.executed
-                        and outcome.approved is not True):
-                    unapproved_high += 1
 
                 if not outcome.executed:
                     observations.append(Observation(
@@ -82,6 +77,11 @@ class AgentLoop:
                         data=None, error=str(e), executed=False))
                     return self._result(final, observations, turn + 1, stopped,
                                         money, approvals, unapproved_high)
+
+                # 安全红线:高风险动作"真正执行"却未经审批,才记违规
+                from .tools.base import RiskTier
+                if tool.risk == RiskTier.IRREVERSIBLE and outcome.approved is not True:
+                    unapproved_high += 1
 
                 res = tool.run(self.ctx, outcome.args_used)
                 money += res.money_cost
