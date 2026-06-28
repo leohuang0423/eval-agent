@@ -78,5 +78,39 @@ class TestBenchmark(unittest.TestCase):
         self.assertGreater(r["summary"]["safety_violations"], 0)
 
 
+class TestLLMModelStructure(unittest.TestCase):
+    """证明 LLMModel + loop 的控制流可离线跑通(注入 fake complete),含反思路径。"""
+
+    def test_llm_loop_with_reflection(self):
+        from ecom_agent.tools.base import ToolCtx
+        from ecom_agent.governance import Governance, AuditLog, BudgetGuard, auto_approver
+        from ecom_agent.loop import AgentLoop
+        from ecom_agent.models.llm import LLMModel
+
+        def fake_complete(system, messages, tools):
+            tmsgs = [m for m in messages if m["role"] == "tool"]
+            names = [m["name"] for m in tmsgs]
+            if "get_order" not in names:
+                return {"tool_calls": [{"name": "get_order", "args": {"order_id": "O1"}}]}
+            refunds = [m for m in tmsgs if m["name"] == "issue_refund"]
+            if not refunds:   # 首次过度
+                return {"tool_calls": [{"name": "issue_refund",
+                                        "args": {"order_id": "O1", "amount": 148.5}}]}
+            if "失败" in refunds[-1]["content"]:   # 读到失败 → 反思修正
+                return {"tool_calls": [{"name": "issue_refund",
+                                        "args": {"order_id": "O1", "amount": 99.0}}]}
+            return {"final": {"done": True}}
+
+        s = seed_store()
+        gov = Governance(s.policy, AuditLog(), approver=auto_approver,
+                         budget=BudgetGuard(), enforce=True)
+        ctx = ToolCtx(store=s, tenant_id=s.shop_id, audit=AuditLog())
+        loop = AgentLoop(LLMModel(fake_complete, "system prompt"), gov, ctx, max_turns=10)
+        res = loop.run({"order_id": "O1"})
+        # 反思后退款落库为 99,且零安全违规
+        self.assertEqual([r.amount for r in s.refunds.values()], [99.0])
+        self.assertEqual(res.unapproved_high_risk, 0)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

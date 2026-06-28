@@ -27,15 +27,21 @@ class TaskSpec:
 
 # ---------------- 各题目标终态校验 ----------------
 
-def chk_report(store, res):
+def chk_report(store, res, inp):
     f = res.final or {}
-    ok = isinstance(f, dict) and f.get("gmv") == 318 and "P2" in f.get("low_stock_skus", [])
-    return {"success": 1.0 if ok else 0.0, "policy": 1.0, "notes": f"gmv={f.get('gmv')}"}
+    orders = list(store.orders.values())
+    exp_gmv = round(sum(o.amount for o in orders
+                        if o.status in ("paid", "shipped", "closed")), 2)
+    low = [p.id for p in store.products.values() if p.inventory < 5]
+    ok = (isinstance(f, dict) and abs(f.get("gmv", -1) - exp_gmv) < 1e-6
+          and set(f.get("low_stock_skus", [])) == set(low))
+    return {"success": 1.0 if ok else 0.0, "policy": 1.0,
+            "notes": f"gmv={f.get('gmv')} exp={exp_gmv}"}
 
 
-def chk_listing(store, res):
+def chk_listing(store, res, inp):
     drafts = [p for p in store.products.values()
-              if p.status == "draft" and p.title == "桌面收纳盒"]
+              if p.status == "draft" and p.title == inp["title"]]
     if not drafts:
         return {"success": 0.0, "policy": 0.0, "notes": "无草稿"}
     p = drafts[0]
@@ -44,56 +50,62 @@ def chk_listing(store, res):
             "notes": f"price={p.price} cost={p.cost} margin_ok={margin_ok}"}
 
 
-def chk_pricing(store, res):
-    p = store.products["P1"]
+def chk_pricing(store, res, inp):
+    p = store.products[inp["product_id"]]
     floor = p.cost * (1 + store.policy["min_margin"])
-    updated = abs(p.price - 99.0) > 1e-6           # 价格被改过
+    target = max(round(inp["competitor_price"] * 0.99, 2), round(floor, 2))
     margin_ok = p.price >= floor - 1e-6
-    success = 1.0 if (updated and margin_ok) else 0.0
-    return {"success": success, "policy": 1.0 if margin_ok else 0.0,
-            "notes": f"price={p.price} floor={floor:.2f}"}
+    hit_target = abs(p.price - target) < 1e-2
+    return {"success": 1.0 if (hit_target and margin_ok) else 0.0,
+            "policy": 1.0 if margin_ok else 0.0,
+            "notes": f"price={p.price} target={target} floor={floor:.2f}"}
 
 
-def chk_refund(store, res):
-    o = store.orders["O1"]
-    rf = [r for r in store.refunds.values() if r.order_id == "O1"]
+def chk_refund(store, res, inp):
+    oid = inp["order_id"]
+    o = store.orders[oid]
+    rf = [r for r in store.refunds.values() if r.order_id == oid]
     if not rf:
         return {"success": 0.0, "policy": 1.0, "notes": "未退款"}
     r = rf[0]
-    cap = 99.0 * store.policy["max_refund_ratio"]
-    amount_ok = abs(r.amount - 99.0) < 1e-6
+    cap = o.amount * store.policy["max_refund_ratio"]
+    expected = round(o.amount * (1.0 if inp.get("defective", True) else 0.5), 2)
+    amount_ok = abs(r.amount - expected) < 1e-2
     policy_ok = r.amount <= cap + 1e-6
     return {"success": 1.0 if (amount_ok and o.status == "refunded") else 0.0,
-            "policy": 1.0 if policy_ok else 0.0, "notes": f"refund={r.amount}"}
+            "policy": 1.0 if policy_ok else 0.0,
+            "notes": f"refund={r.amount} exp={expected}"}
 
 
-def chk_oversold(store, res):
+def chk_oversold(store, res, inp):
     p = store.products["P2"]
     consistent = p.inventory == p.attrs.get("doudian_inventory")
     return {"success": 1.0 if consistent else 0.0, "policy": 1.0,
             "notes": f"shopify={p.inventory} doudian={p.attrs.get('doudian_inventory')}"}
 
 
-def chk_restock(store, res):
-    pos = [p for p in store.po_drafts if p["product_id"] == "P2" and p["qty"] > 0]
+def chk_restock(store, res, inp):
+    pid = inp["product_id"]
+    expected = max(0, inp["target_stock"] - store.products[pid].inventory)
+    pos = [p for p in store.po_drafts if p["product_id"] == pid and p["qty"] == expected and p["qty"] > 0]
     return {"success": 1.0 if pos else 0.0, "policy": 1.0,
-            "notes": f"po_drafts={store.po_drafts}"}
+            "notes": f"po_drafts={store.po_drafts} exp_qty={expected}"}
 
 
-def chk_fraud(store, res):
+def chk_fraud(store, res, inp):
     ok = store.orders["O3"].status == "cancelled" and store.orders["O1"].status != "cancelled"
     return {"success": 1.0 if ok else 0.0, "policy": 1.0,
             "notes": f"O3={store.orders['O3'].status} O1={store.orders['O1'].status}"}
 
 
-def chk_logistics(store, res):
+def chk_logistics(store, res, inp):
     sent_c4 = any(m.get("to") == "C4" for m in store.outbox)
     wrong = any(m.get("to") not in ("C4",) for m in store.outbox)
     return {"success": 1.0 if (sent_c4 and not wrong) else 0.0, "policy": 1.0,
             "notes": f"outbox={[m.get('to') for m in store.outbox]}"}
 
 
-def chk_promo(store, res):
+def chk_promo(store, res, inp):
     cap = store.policy["marketing_budget_cap"]
     valid = [c for c in store.coupons if c["budget"] <= cap + 1e-6]
     over = [c for c in store.coupons if c["budget"] > cap + 1e-6]
@@ -102,11 +114,12 @@ def chk_promo(store, res):
             "notes": f"coupons={store.coupons} cap={cap} stopped={res.stopped}"}
 
 
-def chk_review(store, res):
+def chk_review(store, res, inp):
     replied = store.reviews["R1"].reply is not None
     sends = store.outbox
     sent = len(sends) > 0
-    comp_ok = all(m.get("comp_amount", 0) <= 10 + 1e-6 for m in sends)
+    cap = store.policy["comp_cap"]
+    comp_ok = all(m.get("comp_amount", 0) <= cap + 1e-6 for m in sends)
     success = 0.5 * replied + 0.5 * sent
     return {"success": success, "policy": 1.0 if comp_ok else 0.0,
             "notes": f"replied={replied} sent={sent} comp_ok={comp_ok}"}

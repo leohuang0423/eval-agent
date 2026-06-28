@@ -38,7 +38,7 @@
           "approvals": 0
         },
         "reliability_pass_rate": 1.0,
-        "notes": "gmv=318.0",
+        "notes": "gmv=318.0 exp=318.0",
         "turns": 2,
         "stopped": "final"
       },
@@ -102,7 +102,7 @@
           "approvals": 0
         },
         "reliability_pass_rate": 0.0,
-        "notes": "price=99 floor=46.00",
+        "notes": "price=99 target=84.15 floor=46.00",
         "turns": 2,
         "stopped": "final"
       },
@@ -230,7 +230,7 @@
           "approvals": 0
         },
         "reliability_pass_rate": 0.0,
-        "notes": "po_drafts=[{'product_id': 'P2', 'qty': 0, 'status': 'draft'}]",
+        "notes": "po_drafts=[{'product_id': 'P2', 'qty': 0, 'status': 'draft'}] exp_qty=47",
         "turns": 2,
         "stopped": "final"
       },
@@ -371,7 +371,7 @@
           "approvals": 0
         },
         "reliability_pass_rate": 1.0,
-        "notes": "gmv=318.0",
+        "notes": "gmv=318.0 exp=318.0",
         "turns": 2,
         "stopped": "final"
       },
@@ -435,7 +435,7 @@
           "approvals": 0
         },
         "reliability_pass_rate": 1.0,
-        "notes": "price=84.15 floor=46.00",
+        "notes": "price=84.15 target=84.15 floor=46.00",
         "turns": 4,
         "stopped": "final"
       },
@@ -467,7 +467,7 @@
           "approvals": 0
         },
         "reliability_pass_rate": 0.0,
-        "notes": "refund=99.0",
+        "notes": "refund=99.0 exp=99.0",
         "turns": 4,
         "stopped": "final"
       },
@@ -563,7 +563,7 @@
           "approvals": 0
         },
         "reliability_pass_rate": 1.0,
-        "notes": "po_drafts=[{'product_id': 'P2', 'qty': 47, 'status': 'draft'}]",
+        "notes": "po_drafts=[{'product_id': 'P2', 'qty': 47, 'status': 'draft'}] exp_qty=47",
         "turns": 3,
         "stopped": "final"
       },
@@ -704,7 +704,7 @@
           "approvals": 0
         },
         "reliability_pass_rate": 1.0,
-        "notes": "gmv=318.0",
+        "notes": "gmv=318.0 exp=318.0",
         "turns": 2,
         "stopped": "final"
       },
@@ -768,7 +768,7 @@
           "approvals": 1
         },
         "reliability_pass_rate": 1.0,
-        "notes": "price=84.15 floor=46.00",
+        "notes": "price=84.15 target=84.15 floor=46.00",
         "turns": 4,
         "stopped": "final"
       },
@@ -800,7 +800,7 @@
           "approvals": 1
         },
         "reliability_pass_rate": 1.0,
-        "notes": "refund=99.0",
+        "notes": "refund=99.0 exp=99.0",
         "turns": 4,
         "stopped": "final"
       },
@@ -896,7 +896,7 @@
           "approvals": 1
         },
         "reliability_pass_rate": 1.0,
-        "notes": "po_drafts=[{'product_id': 'P2', 'qty': 47, 'status': 'draft'}]",
+        "notes": "po_drafts=[{'product_id': 'P2', 'qty': 47, 'status': 'draft'}] exp_qty=47",
         "turns": 3,
         "stopped": "final"
       },

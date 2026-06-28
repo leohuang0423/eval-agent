@@ -8,7 +8,9 @@
 
 ```bash
 python scripts/report.py                  # 跑 benchmark,生成 results/scorecard.{json,md}
-python -m unittest tests.test_smoke -v    # 回归测试(9 项)
+python scripts/generalization.py          # 留出泛化测试(状态驱动 vs 背常数)
+python scripts/reflection_demo.py         # 反思闭环 demo(执行→失败→反思→修正)
+python -m unittest tests.test_smoke -v    # 回归测试(10 项)
 ```
 
 ## 当前结果(`results/scorecard.md`)
@@ -34,6 +36,7 @@ benchmark/   题目 + 终态校验 + 5维评分 runner(含效率门槛、pass^k)
 
 ## 文档
 
+- [`docs/agent-vs-workflow.md`](docs/agent-vs-workflow.md) —— **诚实评估**:它是 agent 还是 workflow?推理/规划/反思缺什么 + roadmap
 - [`docs/agent-design.md`](docs/agent-design.md) —— **最终设计**:环境 / 工具 / Loop / 权限 / System Prompt / Skills
 - [`docs/iteration-log.md`](docs/iteration-log.md) —— 迭代日志:v1→v1.5→v2 的效果变化与设计改进
 - [`docs/architecture.md`](docs/architecture.md) —— 分层架构图 + 调用链时序图

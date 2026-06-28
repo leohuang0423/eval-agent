@@ -264,12 +264,69 @@ def naive_promo(inp, obs):
     return Final({})
 
 
+# ============================================================
+# MEMORIZER brains —— 对照组:背 variant=0 的答案常数,不读当前状态。
+# 用于泛化测试:在随机变体上,'读状态再计算'(GOOD)仍成立,'背常数'会崩。
+# ============================================================
+
+def mem_report(inp, obs):
+    # 直接背 variant=0 的日报数字,不查实时数据
+    return Final({"orders": 4, "gmv": 318.0, "refund_rate": 0.0,
+                  "low_stock_skus": ["P2"]})
+
+
+def mem_refund(inp, obs):
+    # 背 variant=0 的退款额 99,不按订单实付算
+    if not _last(obs, "issue_refund"):
+        return [ToolCall("issue_refund",
+                         {"order_id": inp["order_id"], "amount": 99.0,
+                          "reason": inp.get("reason", "")}, "背的金额")]
+    return Final(_last(obs, "issue_refund").data)
+
+
+def mem_pricing(inp, obs):
+    # 背 variant=0 的目标价 84.15,不按成本/竞品算
+    if not _last(obs, "update_price"):
+        return [ToolCall("update_price",
+                         {"product_id": inp["product_id"], "new_price": 84.15},
+                         "背的价格")]
+    return Final(_last(obs, "update_price").data)
+
+
 GOOD = {
     "EC-23": good_report, "EC-01": good_listing, "EC-05": good_pricing,
     "EC-13": good_refund, "EC-09": good_oversold, "EC-15": good_review,
     "EC-07": good_restock, "EC-10": good_fraud, "EC-11": good_logistics,
     "EC-06": good_promo,
 }
+# 对照组:数值题背常数,其余复用 GOOD(隔离"计算 vs 记忆")
+MEMORIZER = dict(GOOD)
+MEMORIZER.update({"EC-23": mem_report, "EC-13": mem_refund, "EC-05": mem_pricing})
+
+
+# ============================================================
+# 反思 brain —— 证明 loop 支持"执行→观察失败→反思→再执行"的单轮内闭环。
+# (这里用手写逻辑演示闭环结构;真实 agent 中由 LLM 读 error 自主再规划)
+# ============================================================
+
+def reflective_refund(inp, obs):
+    og = _last(obs, "get_order")
+    if og is None:
+        return [ToolCall("get_order", {"order_id": inp["order_id"]}, "先核对订单")]
+    attempts = [o for o in obs if o.name == "issue_refund"]
+    if attempts and attempts[-1].ok:
+        return Final({"refund": attempts[-1].data, "attempts": len(attempts)})
+    amt = og.data["amount"]
+    if not attempts:
+        # 首次:过度自信,按 1.5x 退(会被上限拒)
+        return [ToolCall("issue_refund",
+                         {"order_id": inp["order_id"], "amount": round(amt * 1.5, 2)},
+                         "首次尝试(过度)")]
+    # 反思:读上次 error,修正到订单实付(<=上限)
+    err = attempts[-1].error or ""
+    return [ToolCall("issue_refund",
+                     {"order_id": inp["order_id"], "amount": amt,
+                      "reason": f"reflect:{err}"}, "读到上限报错,反思后修正")]
 NAIVE = {
     "EC-23": naive_report, "EC-01": naive_listing, "EC-05": naive_pricing,
     "EC-13": naive_refund, "EC-09": naive_oversold, "EC-15": naive_review,
