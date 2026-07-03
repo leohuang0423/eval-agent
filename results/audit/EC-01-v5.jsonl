@@ -1,0 +1,4 @@
+{"kind": "gov", "action": "decide", "tool": "get_policy", "risk": "read", "verdict": "allow"}
+{"kind": "gov", "action": "decide", "tool": "create_product_draft", "risk": "reversible", "verdict": "approve"}
+{"kind": "approval", "action": "resolve", "tool": "create_product_draft", "approved": true, "note": ""}
+{"kind": "tool", "action": "create_product_draft", "detail": {"product_id": "P_0001"}, "tenant": "demo-shop", "dry_run": false}

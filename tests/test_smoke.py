@@ -112,6 +112,90 @@ class TestLLMModelStructure(unittest.TestCase):
         self.assertEqual(res.unapproved_high_risk, 0)
 
 
+class TestApprovalPauseResume(unittest.TestCase):
+    """G1/G2:异步审批中断→checkpoint→恢复(批准/改参/驳回)。"""
+
+    def _mk(self, approver):
+        from ecom_agent.tools.base import ToolCtx
+        from ecom_agent.governance import Governance, AuditLog, BudgetGuard
+        from ecom_agent.loop import AgentLoop
+        from ecom_agent.models.llm import LLMModel
+
+        def fake_complete(system, messages, tools):
+            tmsgs = [m for m in messages if m["role"] == "tool"]
+            names = [m["name"] for m in tmsgs]
+            if "get_order" not in names:
+                return {"tool_calls": [{"name": "get_order", "args": {"order_id": "O1"}}]}
+            refunds = [m for m in tmsgs if m["name"] == "issue_refund"]
+            if not refunds:
+                return {"tool_calls": [{"name": "issue_refund",
+                                        "args": {"order_id": "O1", "amount": 99.0}}]}
+            if "拦截" in refunds[-1]["content"] or "失败" in refunds[-1]["content"]:
+                return {"final": {"done": False, "note": "驳回,终止"}}
+            return {"final": {"done": True}}
+
+        s = seed_store()
+        gov = Governance(s.policy, AuditLog(), approver=approver,
+                         budget=BudgetGuard(), enforce=True)
+        ctx = ToolCtx(store=s, tenant_id=s.shop_id, audit=AuditLog())
+        loop = AgentLoop(LLMModel(fake_complete, "sys"), gov, ctx, max_turns=10)
+        return s, loop
+
+    def test_pause_then_approve_with_modified_amount(self):
+        from ecom_agent.governance import ApprovalInbox, ApprovalDecision
+        inbox = ApprovalInbox()
+        s, loop = self._mk(inbox.approver())
+        r1 = loop.run({"order_id": "O1"})
+        # 高风险动作挂起:未执行、可恢复
+        self.assertEqual(r1.stopped, "awaiting_approval")
+        self.assertEqual(len(s.refunds), 0)
+        self.assertEqual(r1.checkpoint["pending_call"]["name"], "issue_refund")
+        self.assertIn(r1.checkpoint["approval_id"], inbox.pending)
+        # 商家改额批准(99 → 80)
+        req = inbox.take(r1.checkpoint["approval_id"])
+        args = dict(req.args); args["amount"] = 80.0
+        r2 = loop.resume(r1.checkpoint,
+                         ApprovalDecision(approved=True, modified_args=args, note="改额"))
+        self.assertEqual(r2.stopped, "final")
+        self.assertEqual([rf.amount for rf in s.refunds.values()], [80.0])
+        self.assertEqual(r2.unapproved_high_risk, 0)
+        self.assertEqual(r2.approvals, 1)
+
+    def test_pause_then_reject(self):
+        from ecom_agent.governance import ApprovalInbox, ApprovalDecision
+        inbox = ApprovalInbox()
+        s, loop = self._mk(inbox.approver())
+        r1 = loop.run({"order_id": "O1"})
+        r2 = loop.resume(r1.checkpoint, ApprovalDecision(approved=False, note="驳回"))
+        self.assertEqual(len(s.refunds), 0)          # 驳回后未执行
+        self.assertEqual(r2.stopped, "final")        # 模型收到驳回,自行收尾
+        self.assertEqual(r2.unapproved_high_risk, 0)
+
+
+class TestTenantIsolation(unittest.TestCase):
+    """G6:多租户隔离 —— 状态/记忆/审计互不串味。"""
+
+    def test_stores_and_memory_isolated(self):
+        import tempfile
+        from ecom_agent.memory import MemoryStore
+        from ecom_agent.tools.base import ToolCtx
+        from ecom_agent.governance import AuditLog
+        from ecom_agent.tools.base import registry
+
+        sa, sb = seed_store("shopA"), seed_store("shopB")
+        aa, ab = AuditLog(), AuditLog()
+        registry.get("issue_refund").run(
+            ToolCtx(store=sa, tenant_id="shopA", audit=aa),
+            {"order_id": "O1", "amount": 99})
+        self.assertEqual(len(sa.refunds), 1)
+        self.assertEqual(len(sb.refunds), 0)                     # B 店状态未动
+        self.assertTrue(all(e["tenant"] == "shopA" for e in aa.events))
+        self.assertEqual(ab.events, [])                          # B 店审计未动
+        m = MemoryStore(tempfile.mkdtemp())
+        m.remember("shopA", "偏好A", kind="semantic")
+        self.assertEqual(m.recall("shopB"), [])                  # 记忆不跨租户
+
+
 class TestMemory(unittest.TestCase):
     def test_remember_recall_filtered(self):
         import tempfile

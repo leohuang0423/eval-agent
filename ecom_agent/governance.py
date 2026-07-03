@@ -31,6 +31,17 @@ class AuditLog:
     def count(self, kind: str) -> int:
         return sum(1 for e in self.events if e.get("kind") == kind)
 
+    def to_jsonl(self, path: str):
+        """全链路留痕落盘(每事件一行 JSON),供审计/复盘。"""
+        import json
+        import os
+        d = os.path.dirname(path)
+        if d:
+            os.makedirs(d, exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            for e in self.events:
+                f.write(json.dumps(e, ensure_ascii=False, default=str) + "\n")
+
 
 # ---------------- 决策类型 ----------------
 
@@ -62,6 +73,35 @@ ApprovalDecider = Callable[[ApprovalRequest], ApprovalDecision]
 
 def auto_approver(req: ApprovalRequest) -> ApprovalDecision:
     return ApprovalDecision(approved=True)
+
+
+class ApprovalPending(Exception):
+    """审批无法同步得到决策(真实商家是异步审批的)。
+    loop 捕获后序列化 checkpoint 暂停;商家决策后 loop.resume 恢复。"""
+
+    def __init__(self, request_id: str, request: ApprovalRequest):
+        super().__init__(f"approval pending: {request_id}")
+        self.request_id = request_id
+        self.request = request
+
+
+class ApprovalInbox:
+    """异步审批收件箱:高风险动作挂起进箱,商家稍后 批准/改参/驳回。"""
+
+    def __init__(self):
+        self._n = 0
+        self.pending: dict[str, ApprovalRequest] = {}
+
+    def approver(self) -> ApprovalDecider:
+        def _appr(req: ApprovalRequest) -> ApprovalDecision:
+            self._n += 1
+            rid = f"apr_{self._n:04d}"
+            self.pending[rid] = req
+            raise ApprovalPending(rid, req)
+        return _appr
+
+    def take(self, request_id: str) -> ApprovalRequest:
+        return self.pending.pop(request_id)
 
 
 # ---------------- 预算护栏 ----------------

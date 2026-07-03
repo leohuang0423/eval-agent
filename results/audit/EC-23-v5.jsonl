@@ -1,0 +1,4 @@
+{"kind": "gov", "action": "decide", "tool": "sales_report", "risk": "read", "verdict": "allow"}
+{"kind": "gov", "action": "decide", "tool": "check_inventory_consistency", "risk": "read", "verdict": "allow"}
+{"kind": "gov", "action": "decide", "tool": "submit_report", "risk": "read", "verdict": "allow"}
+{"kind": "tool", "action": "submit_report", "detail": {"keys": ["gmv", "orders", "refund_rate", "low_stock_skus"]}, "tenant": "demo-shop", "dry_run": false}

@@ -50,11 +50,13 @@ class LLMModel(ModelClient):
             specs = [s for s in specs if s["name"] in allow]
         self.tool_specs = specs
         self._tokens = 0
+        self._cost_usd = 0.0
 
     def step(self, task_input: dict, observations: list[Observation]) -> Action:
         messages = build_messages(task_input, observations)
         out = self.complete(self.system_prompt, messages, self.tool_specs)
         self._tokens += int(out.get("_tokens", 600))
+        self._cost_usd += float(out.get("_cost_usd", 0.0))
         if "final" in out:
             return Final(out["final"])
         return [ToolCall(c["name"], c.get("args", {}), c.get("reason", ""))
@@ -62,6 +64,9 @@ class LLMModel(ModelClient):
 
     def token_cost(self) -> int:
         return self._tokens
+
+    def cost_usd(self) -> float:
+        return round(self._cost_usd, 4)
 
 
 # ---- 生产端 complete 工厂(轮廓;真实调用需 API key)----
@@ -122,12 +127,14 @@ def claude_cli_completion(model: str = "claude-sonnet-4-6", timeout: int = 150) 
             text = envelope.get("result", "")
             usage = envelope.get("usage", {})
             tokens = usage.get("input_tokens", 0) + usage.get("output_tokens", 0)
+            cost_usd = float(envelope.get("total_cost_usd") or 0.0)
         except json.JSONDecodeError:
-            text, tokens = proc.stdout, 600
+            text, tokens, cost_usd = proc.stdout, 600, 0.0
         decision = _extract_decision(text)
         if decision is None:
-            return {"final": {"raw": text[:600]}, "_tokens": tokens}
+            return {"final": {"raw": text[:600]}, "_tokens": tokens, "_cost_usd": cost_usd}
         decision["_tokens"] = tokens
+        decision["_cost_usd"] = cost_usd
         return decision
 
     return _complete
