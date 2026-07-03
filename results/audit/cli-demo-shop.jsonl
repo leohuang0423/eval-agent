@@ -1,5 +1,3 @@
-{"kind": "cli", "action": "step_done", "skill": "logistics", "tools": ["get_orders"], "approvals": 0}
-{"kind": "cli", "action": "step_done", "skill": "aftersales", "tools": ["get_policy", "get_orders"], "approvals": 0}
-{"kind": "cli", "action": "step_done", "skill": "inventory", "tools": [], "approvals": 0}
+{"kind": "cli", "action": "step_done", "skill": "logistics", "tools": ["get_orders", "send_message"], "approvals": 1}
 {"kind": "cli", "action": "step_done", "skill": "inventory", "tools": ["get_policy", "get_products", "create_purchase_order_draft", "create_purchase_order_draft"], "approvals": 2}
-{"kind": "cli", "action": "step_done", "skill": "analytics", "tools": ["sales_report", "submit_report"], "approvals": 0}
+{"kind": "cli", "action": "step_done", "skill": "analytics", "tools": ["sales_report", "get_orders", "get_products", "get_reviews", "check_inventory_consistency", "submit_report"], "approvals": 0}
