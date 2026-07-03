@@ -7,17 +7,20 @@
 ## 快速开始
 
 ```bash
+python scripts/agent_cli.py "给物流停滞的订单发安抚通知,再出今日日报"   # 🏪 商家产品入口(审批卡 y/n/改额)
+python scripts/llm_run.py 1,2,4           # 真实 Sonnet 4.6 × 多留出变体记分卡(实测耗时+真实$)
 python scripts/report.py                  # 脚本参考解记分卡(CI),results/scorecard.{json,md}
-python scripts/llm_run.py 1,2,4           # 真实 Sonnet 4.6 × 多留出变体记分卡(需 claude CLI)
 python scripts/memory_demo.py             # memory 改变定价决策
 python scripts/composite_demo.py          # planner + 多 skill 子 agent 复合任务(大促)
 python scripts/generalization.py          # 留出泛化(状态驱动 vs 背常数)
 python scripts/reflection_demo.py         # 反思闭环(执行→失败→反思→修正)
-python -m unittest tests.test_smoke -v    # 回归测试(12 项)
+python -m unittest tests.test_smoke -v    # 回归测试(15 项,含审批中断/恢复/改参/驳回、多租户隔离)
 ```
 
-代码新增:`ecom_agent/skills.py`(域指引+最小工具集)、`ecom_agent/memory.py`(跨任务记忆)、
-`ecom_agent/planner.py`(planner/子 agent)。
+核心模块:`loop.py`(薄 loop + **审批中断/恢复 checkpoint**)、`governance.py`(风险路由/HITL/**ApprovalInbox**/预算/审计落盘)、
+`skills.py`(域指引+最小工具集)、`memory.py`(跨任务记忆)、`planner.py`(planner/子 agent)。
+
+**成功标准与审计**:[`docs/success-criteria.md`](docs/success-criteria.md) —— SMART 标准 S1–S8、缺口闭合记录、防自欺声明。
 
 ## 真实模型在环(Claude Sonnet 4.6)
 

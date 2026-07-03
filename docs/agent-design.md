@@ -51,9 +51,12 @@ for turn in range(max_turns):
         observations.append(result)                    # 回灌
 ```
 
-- **停止条件**:Final / max_turns / 预算耗尽 / 等待审批。
-- **可插拔 model**:`ScriptedModel`(参考解,benchmark 用)与 `LLMModel`(接 OpenAI/Anthropic SDK,生产用)同接口。
-- **长任务**:goal-state 可中断恢复(审批后从 checkpoint 续跑),对应 benchmark EC-28。
+- **停止条件**:Final / max_turns / 预算耗尽 / awaiting_approval(挂起)。
+- **可插拔 model**:`ScriptedModel`(CI 参考解)与 `LLMModel`(真实 LLM,经 tool-calling)同接口。
+- **审批中断/恢复(已实现)**:`ApprovalInbox` 挂起高风险动作 → loop 序列化 checkpoint 返回
+  `stopped="awaiting_approval"` → 商家异步决策 → `loop.resume(checkpoint, decision)`:
+  批准(可**改参**,如退款 99→80)则执行后续跑;驳回则把"被驳回"回灌给模型自行收尾。
+  CLI 产品形态另有同步交互审批(`scripts/agent_cli.py` 的审批卡)。
 
 ---
 
