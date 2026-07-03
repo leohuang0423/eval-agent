@@ -1,0 +1,5 @@
+{"kind": "gov", "action": "decide", "tool": "get_orders", "risk": "read", "verdict": "allow"}
+{"kind": "gov", "action": "decide", "tool": "get_order", "risk": "read", "verdict": "allow"}
+{"kind": "gov", "action": "decide", "tool": "cancel_order", "risk": "irreversible", "verdict": "approve"}
+{"kind": "approval", "action": "resolve", "tool": "cancel_order", "approved": true, "note": ""}
+{"kind": "tool", "action": "cancel_order", "detail": {"order_id": "O3"}, "tenant": "demo-shop", "dry_run": false}

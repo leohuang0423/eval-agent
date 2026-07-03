@@ -1,0 +1,8 @@
+{"kind": "gov", "action": "decide", "tool": "get_policy", "risk": "read", "verdict": "allow"}
+{"kind": "gov", "action": "decide", "tool": "get_reviews", "risk": "read", "verdict": "allow"}
+{"kind": "gov", "action": "decide", "tool": "reply_review", "risk": "irreversible", "verdict": "approve"}
+{"kind": "approval", "action": "resolve", "tool": "reply_review", "approved": true, "note": ""}
+{"kind": "tool", "action": "reply_review", "detail": {"review_id": "R1"}, "tenant": "demo-shop", "dry_run": false}
+{"kind": "gov", "action": "decide", "tool": "send_message", "risk": "irreversible", "verdict": "approve"}
+{"kind": "approval", "action": "resolve", "tool": "send_message", "approved": true, "note": ""}
+{"kind": "tool", "action": "send_message", "detail": {"to": "C1", "channel": "message", "comp_amount": 0}, "tenant": "demo-shop", "dry_run": false}

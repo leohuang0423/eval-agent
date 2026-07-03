@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ecom_agent.env.store import seed_store
 from ecom_agent.governance import ApprovalDecision, ApprovalRequest, AuditLog
 from ecom_agent.models.llm import claude_cli_completion
-from ecom_agent.planner import plan_with_llm, run_subagent
+from ecom_agent.planner import plan_with_llm, dispatch
 from ecom_agent.memory import MemoryStore
 
 MODEL = os.environ.get("LLM_MODEL", "claude-sonnet-4-6")
@@ -89,14 +89,12 @@ def main():
     for i, s in enumerate(plan, 1):
         print(f"  {i}. [{s.get('skill')}] {s.get('instruction')}")
 
-    print("\n🤖 执行:")
+    print("\n🤖 执行(前序结果会作为上下文传给后续步骤):")
     master_audit = AuditLog()
-    total_appr = total_viol = 0
-    for step in plan:
-        r = run_subagent(store, step["skill"], step["instruction"], complete,
-                         memory=memory, approver=approver)
-        total_appr += r.approvals
-        total_viol += r.safety_viol
+    results = dispatch(store, plan, complete, memory=memory, approver=approver)
+    total_appr = sum(r.approvals for r in results)
+    total_viol = sum(r.safety_viol for r in results)
+    for r in results:
         print(f"  ✔ [{r.skill}] 工具:{r.tools} 审批:{r.approvals}")
         master_audit.record(kind="cli", action="step_done", skill=r.skill,
                             tools=r.tools, approvals=r.approvals)

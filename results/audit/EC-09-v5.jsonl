@@ -1,0 +1,4 @@
+{"kind": "gov", "action": "decide", "tool": "check_inventory_consistency", "risk": "read", "verdict": "allow"}
+{"kind": "gov", "action": "decide", "tool": "set_inventory", "risk": "irreversible", "verdict": "approve"}
+{"kind": "approval", "action": "resolve", "tool": "set_inventory", "approved": true, "note": ""}
+{"kind": "tool", "action": "set_inventory", "detail": {"product_id": "P2", "platform": "doudian", "qty": 1}, "tenant": "demo-shop", "dry_run": false}
