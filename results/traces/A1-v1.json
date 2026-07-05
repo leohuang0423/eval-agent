@@ -1,0 +1,182 @@
+{
+ "row": {
+  "task": "A1",
+  "title": "类目机会挖掘",
+  "variant": 1,
+  "passed": true,
+  "success": 1.0,
+  "policy": 1.0,
+  "safety_viol": 0,
+  "approvals": 0,
+  "turns": 3,
+  "threshold": 0.999,
+  "t_seconds": 20.9,
+  "t_human_min": 120,
+  "t_ratio_real": 0.0029,
+  "notes": "hits=3/3 evidence=True"
+ },
+ "instruction": "从 query_data(category_trends) 与 my_sales 中找 3 个高机会选品方向(高增速+低竞争+可观毛利)。最后 submit_answer{opportunities:[{category,reason}×3]},reason 必须引用增速/竞争/毛利数据。",
+ "extra": [
+  {
+   "role": "task",
+   "content": "从 query_data(category_trends) 与 my_sales 中找 3 个高机会选品方向(高增速+低竞争+可观毛利)。最后 submit_answer{opportunities:[{category,reason}×3]},reason 必须引用增速/竞争/毛利数据。"
+  }
+ ],
+ "observations": [
+  {
+   "name": "query_data",
+   "args": {
+    "dataset": "category_trends"
+   },
+   "ok": true,
+   "data": {
+    "categories": [
+     {
+      "category": "桌面收纳",
+      "growth_90d": 0.74,
+      "competition_index": 0.38,
+      "avg_margin": 0.39
+     },
+     {
+      "category": "户外露营灯",
+      "growth_90d": 0.77,
+      "competition_index": 0.29,
+      "avg_margin": 0.39
+     },
+     {
+      "category": "传统女装",
+      "growth_90d": -0.07,
+      "competition_index": 0.79,
+      "avg_margin": 0.11
+     },
+     {
+      "category": "宠物智能用品",
+      "growth_90d": 0.55,
+      "competition_index": 0.26,
+      "avg_margin": 0.41
+     },
+     {
+      "category": "通用雨伞",
+      "growth_90d": -0.08,
+      "competition_index": 0.91,
+      "avg_margin": 0.14
+     },
+     {
+      "category": "常规文具",
+      "growth_90d": 0.02,
+      "competition_index": 0.85,
+      "avg_margin": 0.13
+     },
+     {
+      "category": "普通手机壳",
+      "growth_90d": 0.04,
+      "competition_index": 0.88,
+      "avg_margin": 0.13
+     },
+     {
+      "category": "基础数据线",
+      "growth_90d": -0.0,
+      "competition_index": 0.72,
+      "avg_margin": 0.13
+     }
+    ],
+    "note": "growth_90d=近90天增速; competition_index 越低竞争越小"
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "query_data",
+   "args": {
+    "dataset": "my_sales"
+   },
+   "ok": true,
+   "data": {
+    "main_category": "家居",
+    "monthly_gmv": 85000
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "submit_answer",
+   "args": {
+    "opportunities": [
+     {
+      "category": "户外露营灯",
+      "reason": "近90天增速77%（最高），竞争指数0.29（低竞争），平均毛利39%，三项指标综合最优"
+     },
+     {
+      "category": "宠物智能用品",
+      "reason": "近90天增速55%，竞争指数0.26（全场最低竞争），平均毛利41%（最高），毛利与低竞争组合突出"
+     },
+     {
+      "category": "桌面收纳",
+      "reason": "近90天增速74%（第二高），竞争指数0.38（低竞争），平均毛利39%，与本店家居主类目协同性强"
+     }
+    ]
+   },
+   "ok": true,
+   "data": {
+    "submitted_keys": [
+     "opportunities"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  }
+ ],
+ "submission": {
+  "opportunities": [
+   {
+    "category": "户外露营灯",
+    "reason": "近90天增速77%（最高），竞争指数0.29（低竞争），平均毛利39%，三项指标综合最优"
+   },
+   {
+    "category": "宠物智能用品",
+    "reason": "近90天增速55%，竞争指数0.26（全场最低竞争），平均毛利41%（最高），毛利与低竞争组合突出"
+   },
+   {
+    "category": "桌面收纳",
+    "reason": "近90天增速74%（第二高），竞争指数0.38（低竞争），平均毛利39%，与本店家居主类目协同性强"
+   }
+  ]
+ },
+ "audit": [
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "query_data",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "query_data",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "submit_answer",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "tool",
+   "action": "submit_answer",
+   "detail": {
+    "keys": [
+     "opportunities"
+    ]
+   },
+   "tenant": "v2-A1",
+   "dry_run": false
+  }
+ ]
+}

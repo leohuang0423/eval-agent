@@ -1,0 +1,185 @@
+{
+ "row": {
+  "task": "A2",
+  "title": "竞品对标拆解",
+  "variant": 1,
+  "passed": true,
+  "success": 1.0,
+  "policy": 1.0,
+  "safety_viol": 0,
+  "approvals": 0,
+  "turns": 3,
+  "threshold": 0.999,
+  "t_seconds": 37.3,
+  "t_human_min": 90,
+  "t_ratio_real": 0.0069,
+  "notes": "pain_hits=3/3 fields=True"
+ },
+ "instruction": "query_data(competitors/my_product),拆解 3 个竞品的评价痛点与打法,submit_answer{pain_points:[...], differentiation:{price_strategy,selling_point,content_angle}}。",
+ "extra": [
+  {
+   "role": "task",
+   "content": "query_data(competitors/my_product),拆解 3 个竞品的评价痛点与打法,submit_answer{pain_points:[...], differentiation:{price_strategy,selling_point,content_angle}}。"
+  }
+ ],
+ "observations": [
+  {
+   "name": "query_data",
+   "args": {
+    "dataset": "competitors"
+   },
+   "ok": true,
+   "data": {
+    "items": [
+     {
+      "sku": "COMP1",
+      "price": 54.38,
+      "selling_points": [
+       "收腰显瘦",
+       "垂坠面料"
+      ],
+      "top_review_pain": "色差",
+      "content_form": "图文种草"
+     },
+     {
+      "sku": "COMP2",
+      "price": 69.27,
+      "selling_points": [
+       "收腰显瘦",
+       "垂坠面料"
+      ],
+      "top_review_pain": "尺码偏小",
+      "content_form": "直播切片"
+     },
+     {
+      "sku": "COMP3",
+      "price": 77.89,
+      "selling_points": [
+       "收腰显瘦",
+       "法式方领"
+      ],
+      "top_review_pain": "面料薄",
+      "content_form": "直播切片"
+     }
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "query_data",
+   "args": {
+    "dataset": "my_product"
+   },
+   "ok": true,
+   "data": {
+    "sku": "P1",
+    "price": 72.73,
+    "selling_points": [
+     "收腰显瘦",
+     "三色可选"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "submit_answer",
+   "args": {
+    "pain_points": [
+     {
+      "sku": "COMP1",
+      "pain": "色差",
+      "insight": "实物与展示图色差大，消费者收货后落差感强，信任损耗严重"
+     },
+     {
+      "sku": "COMP2",
+      "pain": "尺码偏小",
+      "insight": "版型偏小导致退换率高，尤其影响在线购买转化与复购"
+     },
+     {
+      "sku": "COMP3",
+      "pain": "面料薄",
+      "insight": "高价位却面料感知差，性价比认知崩塌，差评集中拉低评分"
+     }
+    ],
+    "differentiation": {
+     "price_strategy": "定价72.73元，卡位COMP2（69.27）与COMP3（77.89）之间；主打「同价位更高品质感」，对COMP3构成降维打击，对COMP2形成向上区隔",
+     "selling_point": "主推「三色可选＋收腰显瘦」双核卖点——三色可选直接回应COMP1色差痛点，做到所见即所得；配合强调面料厚度与真实版型尺码，正面击穿COMP2/COMP3核心短板",
+     "content_angle": "① 开箱/上身对比向：真实色卡展示三色，消除色差顾虑；② 版型实测向：不同身形试穿＋尺码建议，解决尺码偏小焦虑；③ 面料细节向：手感/透光度演示，强调厚实垂坠，与竞品形成可感知差异；内容形式以直播切片＋图文种草双渠道覆盖COMP1-3的流量场"
+    }
+   },
+   "ok": true,
+   "data": {
+    "submitted_keys": [
+     "pain_points",
+     "differentiation"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  }
+ ],
+ "submission": {
+  "pain_points": [
+   {
+    "sku": "COMP1",
+    "pain": "色差",
+    "insight": "实物与展示图色差大，消费者收货后落差感强，信任损耗严重"
+   },
+   {
+    "sku": "COMP2",
+    "pain": "尺码偏小",
+    "insight": "版型偏小导致退换率高，尤其影响在线购买转化与复购"
+   },
+   {
+    "sku": "COMP3",
+    "pain": "面料薄",
+    "insight": "高价位却面料感知差，性价比认知崩塌，差评集中拉低评分"
+   }
+  ],
+  "differentiation": {
+   "price_strategy": "定价72.73元，卡位COMP2（69.27）与COMP3（77.89）之间；主打「同价位更高品质感」，对COMP3构成降维打击，对COMP2形成向上区隔",
+   "selling_point": "主推「三色可选＋收腰显瘦」双核卖点——三色可选直接回应COMP1色差痛点，做到所见即所得；配合强调面料厚度与真实版型尺码，正面击穿COMP2/COMP3核心短板",
+   "content_angle": "① 开箱/上身对比向：真实色卡展示三色，消除色差顾虑；② 版型实测向：不同身形试穿＋尺码建议，解决尺码偏小焦虑；③ 面料细节向：手感/透光度演示，强调厚实垂坠，与竞品形成可感知差异；内容形式以直播切片＋图文种草双渠道覆盖COMP1-3的流量场"
+  }
+ },
+ "audit": [
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "query_data",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "query_data",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "submit_answer",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "tool",
+   "action": "submit_answer",
+   "detail": {
+    "keys": [
+     "pain_points",
+     "differentiation"
+    ]
+   },
+   "tenant": "v2-A2",
+   "dry_run": false
+  }
+ ]
+}
