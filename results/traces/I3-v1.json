@@ -1,0 +1,373 @@
+{
+ "row": {
+  "task": "I3",
+  "title": "全店合规体检",
+  "variant": 1,
+  "passed": true,
+  "success": 1.0,
+  "policy": 1.0,
+  "safety_viol": 0,
+  "approvals": 0,
+  "turns": 3,
+  "threshold": 0.9,
+  "t_seconds": 34.0,
+  "t_human_min": 120,
+  "t_ratio_real": 0.0047,
+  "notes": "hits=4/4 false=0 rules=True"
+ },
+ "instruction": "query_data(shop_audit),按 rules 扫描 30 个 SKU,submit_answer{risks:[{sku,type,rule}]}。误报>1 会扣分。",
+ "extra": [
+  {
+   "role": "task",
+   "content": "query_data(shop_audit),按 rules 扫描 30 个 SKU,submit_answer{risks:[{sku,type,rule}]}。误报>1 会扣分。"
+  }
+ ],
+ "observations": [
+  {
+   "name": "query_data",
+   "args": {
+    "dataset": "shop_audit"
+   },
+   "ok": true,
+   "data": {
+    "items": [
+     {
+      "sku": "Z1",
+      "title": "商品1 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z2",
+      "title": "商品2 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z3",
+      "title": "商品3 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z4",
+      "title": "商品4 常规款 全网第一",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z5",
+      "title": "商品5 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z6",
+      "title": "商品6 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z7",
+      "title": "商品7 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z8",
+      "title": "商品8 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z9",
+      "title": "商品9 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z10",
+      "title": "商品10 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z11",
+      "title": "商品11 常规款 治疗失眠",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z12",
+      "title": "商品12 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z13",
+      "title": "商品13 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z14",
+      "title": "商品14 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z15",
+      "title": "商品15 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z16",
+      "title": "商品16 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z17",
+      "title": "商品17 常规款",
+      "category": "食品",
+      "cert_status": "缺",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z18",
+      "title": "商品18 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z19",
+      "title": "商品19 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z20",
+      "title": "商品20 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z21",
+      "title": "商品21 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z22",
+      "title": "商品22 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z23",
+      "title": "商品23 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 999,
+      "price": 49
+     },
+     {
+      "sku": "Z24",
+      "title": "商品24 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z25",
+      "title": "商品25 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z26",
+      "title": "商品26 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z27",
+      "title": "商品27 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z28",
+      "title": "商品28 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z29",
+      "title": "商品29 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     },
+     {
+      "sku": "Z30",
+      "title": "商品30 常规款",
+      "category": "家居",
+      "cert_status": "有",
+      "list_price": 59,
+      "price": 49
+     }
+    ],
+    "rules": [
+     "违禁词: 全网第一/治疗类宣称",
+     "食品类目必须有资质证书",
+     "划线价不得超过售价×4"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "submit_answer",
+   "args": {
+    "risks": [
+     {
+      "sku": "Z4",
+      "type": "违禁词",
+      "rule": "违禁词: 全网第一/治疗类宣称"
+     },
+     {
+      "sku": "Z11",
+      "type": "违禁词",
+      "rule": "违禁词: 全网第一/治疗类宣称"
+     },
+     {
+      "sku": "Z17",
+      "type": "食品无证",
+      "rule": "食品类目必须有资质证书"
+     },
+     {
+      "sku": "Z23",
+      "type": "划线价异常",
+      "rule": "划线价不得超过售价×4"
+     }
+    ]
+   },
+   "ok": true,
+   "data": {
+    "submitted_keys": [
+     "risks"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  }
+ ],
+ "submission": {
+  "risks": [
+   {
+    "sku": "Z4",
+    "type": "违禁词",
+    "rule": "违禁词: 全网第一/治疗类宣称"
+   },
+   {
+    "sku": "Z11",
+    "type": "违禁词",
+    "rule": "违禁词: 全网第一/治疗类宣称"
+   },
+   {
+    "sku": "Z17",
+    "type": "食品无证",
+    "rule": "食品类目必须有资质证书"
+   },
+   {
+    "sku": "Z23",
+    "type": "划线价异常",
+    "rule": "划线价不得超过售价×4"
+   }
+  ]
+ },
+ "audit": [
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "query_data",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "submit_answer",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "tool",
+   "action": "submit_answer",
+   "detail": {
+    "keys": [
+     "risks"
+    ]
+   },
+   "tenant": "v2-I3",
+   "dry_run": false
+  }
+ ]
+}
