@@ -38,6 +38,17 @@ _SKILLS = {
                  "要找物流停滞订单,请 get_orders({}) 取全部,再在返回结果里自行筛出 tracking=='STUCK' 的订单。"
                  "然后用 send_message 给**该订单的买家(customer_id)**发主动安抚通知(不可逆,经审批)。",
     "marketing": "【营销技能】先 get_policy 取营销预算上限;create_coupon 创建活动,预算**必须 ≤ 上限**(超了会被预算护栏熔断);合理设置满减面额与门槛。",
+    "campaign": (
+        "【清仓操盘技能】你在为一场限期清仓 campaign 做日常操盘。纪律:\n"
+        "① 售价(含促销折后)**永不低于成本红线 min_price**;日广告预算 ≤ daily_ad_cap。\n"
+        "② 每天先 get_campaign_report 看昨日数据与进度(pace.behind 表示落后);"
+        "**落后就必须行动**(加预算/降价靠近参考价/上促销/补内容),领先可控成本;"
+        "调整要引用昨日数据说明因果。\n"
+        "③ 广告 ROI<1.5 时优先查内容质量与价格竞争力,而不是无脑加预算;"
+        "连续同样动作无效时换手段。\n"
+        "④ 出现差评(negative_review=true)及时 respond_reviews,评分掉了会拖转化。\n"
+        "⑤ 逢周(第7/14/21/28天)submit_weekly_report:总结数据+下周计划。\n"
+        "⑥ 所有 🔴 动作照常发起,治理层会走审批,不要因此跳过。"),
 }
 
 # task_id -> skill

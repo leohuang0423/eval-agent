@@ -232,5 +232,40 @@ class TestSubagent(unittest.TestCase):
         self.assertTrue(mem.recall(store.shop_id))             # 写入了 episodic 记忆
 
 
+class TestCapstoneSim(unittest.TestCase):
+    """J1 模拟器与评分器:确定性、变体差异、区分度。"""
+
+    def test_sim_deterministic_and_variant_differs(self):
+        from ecom_agent.env.market_sim import CampaignSim
+        a1, a2 = CampaignSim(variant=1), CampaignSim(variant=1)
+        self.assertEqual((a1.p_ref, a1.base_traffic), (a2.p_ref, a2.base_traffic))
+        for _ in range(5):
+            a1.tick(); a2.tick()
+        self.assertEqual(a1.kpis(), a2.kpis())              # 同变体完全可复现
+        b = CampaignSim(variant=2)
+        self.assertNotEqual((a1.p_ref, a1.base_traffic),    # 变体参数不同(防死记)
+                            (b.p_ref, b.base_traffic))
+
+    def test_price_floor_and_budget_cap_enforced(self):
+        from ecom_agent.env.market_sim import CampaignSim
+        from ecom_agent.tools.base import registry, ToolCtx
+        sim = CampaignSim(variant=0)
+        ctx = ToolCtx(store=sim, tenant_id=sim.shop_id)
+        self.assertFalse(registry.get("set_campaign_price").run(ctx, {"price": 19.9}).ok)
+        self.assertFalse(registry.get("set_ad_budget").run(ctx, {"budget": 5000}).ok)
+
+    def test_scorer_discriminates(self):
+        from ecom_agent.benchmark.capstone import run_capstone
+        from ecom_agent.benchmark.capstone_brains import (good_campaign_brain,
+                                                          naive_campaign_brain)
+        from ecom_agent.models.scripted import ScriptedModel
+        good = run_capstone(lambda s: ScriptedModel(good_campaign_brain), variant=0)
+        naive = run_capstone(lambda s: ScriptedModel(naive_campaign_brain), variant=0)
+        self.assertGreaterEqual(good.score, 80)
+        self.assertLessEqual(naive.score, 50)
+        self.assertEqual(good.unapproved, 0)
+        self.assertGreaterEqual(good.kpis["sellthrough"], 0.95)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
