@@ -109,7 +109,10 @@ def _score(sim, audit, unapproved, approvals, turns_total, adjust_log) -> Capsto
     behind_days = [a for a in adjust_log if a["behind"]]
     responsive = (sum(1 for a in behind_days if a["actions"]) / len(behind_days)
                   if behind_days else 1.0)
-    weekly_ok = len(sim.weekly_reports) >= min(4, max(1, sim.day // 7))
+    # 只统计 agent 实际获得回合的周报日(售罄提前终止时,不苛求未发生的周报)
+    agent_days = {a["day"] for a in adjust_log}
+    weekly_expected = max(1, len(WEEKLY_DAYS & agent_days))
+    weekly_ok = len(sim.weekly_reports) >= weekly_expected
     cps = [("research", researched, 6), ("pricing", priced_ok, 6),
            ("content", video_ok, 6), ("responsive", responsive >= 0.8, 6),
            ("weekly", weekly_ok, 6)]

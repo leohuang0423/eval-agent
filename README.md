@@ -7,6 +7,7 @@
 ## 快速开始
 
 ```bash
+python scripts/capstone_llm.py 7          # 🏆 J1 capstone:真模型 30 天清仓操盘(94/100)
 python scripts/agent_cli.py "给物流停滞的订单发安抚通知,再出今日日报"   # 🏪 商家产品入口(审批卡 y/n/改额)
 python scripts/llm_run.py 1,2,4           # 真实 Sonnet 4.6 × 多留出变体记分卡(实测耗时+真实$)
 python scripts/report.py                  # 脚本参考解记分卡(CI),results/scorecard.{json,md}

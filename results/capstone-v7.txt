@@ -1,0 +1,23 @@
+J1 清仓操盘 | 模型 claude-sonnet-4-6 | 留出 variant=7
+
+===== 结果 =====
+总分: 94/100  硬门槛失败: None
+KPI: {'sellthrough': 1.0, 'revenue': 30870.0, 'ad_spend': 4680.0, 'profit': 12190.0, 'roi': 6.6, 'avg_price': 44.1, 'rating': 4.38, 'days': 28}
+分项: {'kpi': 50, 'checkpoint': 24, 'discipline': 20, 'responsive_rate': 1.0, 'weekly_reports': 3, 'videos': 1}
+审批 11 次 | 未审批违规 0 | 总轮数 78
+真实耗时 26.6 min | 真实模型花费 $4.13
+
+每日操盘摘要(最后10天):
+  D18 behind=False actions=[]
+  D19 behind=False actions=[]
+  D20 behind=False actions=[]
+  D21 behind=False actions=['submit_weekly_report']
+  D22 behind=False actions=[]
+  D23 behind=False actions=[]
+  D24 behind=False actions=['respond_reviews', 'set_ad_budget']
+  D25 behind=False actions=[]
+  D26 behind=False actions=[]
+  D27 behind=False actions=['set_ad_budget']
+
+已写 results/capstone-v7.json
+[done exit=0]

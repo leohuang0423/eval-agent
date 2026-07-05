@@ -1,0 +1,211 @@
+{
+  "model": "claude-sonnet-4-6",
+  "variant": 7,
+  "score": 94,
+  "hard_fail": null,
+  "kpis": {
+    "sellthrough": 1.0,
+    "revenue": 30870.0,
+    "ad_spend": 4680.0,
+    "profit": 12190.0,
+    "roi": 6.6,
+    "avg_price": 44.1,
+    "rating": 4.38,
+    "days": 28
+  },
+  "breakdown": {
+    "kpi": 50,
+    "checkpoint": 24,
+    "discipline": 20,
+    "responsive_rate": 1.0,
+    "weekly_reports": 3,
+    "videos": 1
+  },
+  "approvals": 11,
+  "unapproved": 0,
+  "minutes": 26.6,
+  "cost_usd": 4.13,
+  "adjust_log": [
+    {
+      "day": 1,
+      "behind": false,
+      "actions": [],
+      "final": "{'day': 1, 'status': '领先', 'summary': '昨日净售29件，目标23.3件，进度领先24.5%；ROI 6.39远超健康线，无差评，评分4.5。无需加预算或降价，维持当前策略控成本。', 'data_reference': {'impressions': 2206,"
+    },
+    {
+      "day": 2,
+      "behind": false,
+      "actions": [],
+      "final": "{'decision': '无需调整，维持现有设置', 'rationale': {'pace': 'D2 累计净销 58 件，目标线 46.7 件，领先约 24%；库存剩 641 件，28 天剩余约需日均 22.9 件，昨日实售 30 件已覆盖。', 'roi': '昨日 ROI 6.39，远超警"
+    },
+    {
+      "day": 3,
+      "behind": false,
+      "actions": [
+        "respond_reviews"
+      ],
+      "final": "None"
+    },
+    {
+      "day": 4,
+      "behind": false,
+      "actions": [],
+      "final": "{'day': 4, 'decision': '无需调整', 'rationale': {'pace': '进度领先:实际售出 116 件 vs 目标 93.3 件,超额 +24.3%,behind=False,无强制行动触发条件', 'roi': '昨日 ROI 6.39,远超 1.5 警戒线,广"
+    },
+    {
+      "day": 5,
+      "behind": false,
+      "actions": [],
+      "final": "{'day': 5, 'status': '领先，无需强制调整', 'data_summary': {'impressions': 2206, 'clicks': 172, 'orders': 30, 'roi': 6.39, 'ad_spend': 200.0, 'inventory_left':"
+    },
+    {
+      "day": 6,
+      "behind": false,
+      "actions": [],
+      "final": "{'decision': '无需调整，保持现状', 'reasoning': {'progress': 'D6结束进度领先：已售净174件，目标140件，超额24.3%，剩余24天库存525件充足。', 'roi': '昨日广告ROI 6.39，远高于1.5警戒线，广告效率优秀，无需加预算或换策略。"
+    },
+    {
+      "day": 7,
+      "behind": false,
+      "actions": [
+        "submit_weekly_report"
+      ],
+      "final": "{'周报': '已提交成功', '昨日数据摘要': {'day': 7, 'revenue': 1278.9, 'orders': 30, 'ad_spend': 200.0, 'roi': 6.39, 'rating': 4.47, 'negative_review': False, 'inven"
+    },
+    {
+      "day": 8,
+      "behind": false,
+      "actions": [],
+      "final": "{'day': 8, 'assessment': '领先，无需调整', 'data_basis': {'sold_net': 232, 'target_by_now': 186.7, 'ahead_by': 45.3, 'roi': 6.39, 'ad_spend': 200.0, 'price':"
+    },
+    {
+      "day": 9,
+      "behind": false,
+      "actions": [],
+      "final": "{'day': 9, 'decision': '无需调整，维持现状', 'reasoning': {'pace': '进度领先：净售 261 件 > 目标 210 件，领先 51 件，剩余 21 天库存 438 件，节奏健康。', 'roi': '昨日 ROI 6.39，远超 1.5 阈值，广告效率"
+    },
+    {
+      "day": 10,
+      "behind": false,
+      "actions": [
+        "respond_reviews"
+      ],
+      "final": "{'day': 10, 'assessment': '进度领先，无需激进干预', 'data_reference': {'sold_net': 290, 'target_by_now': 233.3, 'ahead_by': 56.7, 'roi': 6.39, 'rating_before': 4"
+    },
+    {
+      "day": 11,
+      "behind": false,
+      "actions": [],
+      "final": "{'day': 11, 'status': '领先，无需调整', 'data_summary': {'昨日订单': 30, '昨日ROI': 6.39, '昨日广告消耗': 200.0, '评分': 4.44, '差评': False, '库存余量': 380, '累计净售': 319, '目标值("
+    },
+    {
+      "day": 12,
+      "behind": false,
+      "actions": [],
+      "final": "{'raw': '{\"final\": {\"day\": 12, \"decision\": \"无需调整，维持现状\", \"data_basis\": {\"pace\": \"领先：净销量 348 件 vs 目标 280 件，超额 68 件（+24.3%）\", \"roi\": \"昨日 ROI 6.39，远高于 1.5"
+    },
+    {
+      "day": 13,
+      "behind": false,
+      "actions": [],
+      "final": "{'day': 13, 'decision': '无需调整，保持现状', 'reasoning': {'pace': '进度领先：实际净销377件 vs 目标303.3件，超额+73.7件（领先24.3%），剩余17天需消化322件，日均仅需≈19件，昨日实销30件，余量充裕。', 'roi': '"
+    },
+    {
+      "day": 14,
+      "behind": false,
+      "actions": [
+        "submit_weekly_report"
+      ],
+      "final": "{'day': 14, 'status': '周报已提交，进度领先，无需调整', 'data_review': {'昨日收入': 1278.9, '昨日订单': 30, '昨日ROI': 6.39, '剩余库存': 293, '评分': 4.44, '差评': False, '进度': '已售406"
+    },
+    {
+      "day": 15,
+      "behind": false,
+      "actions": [
+        "set_ad_budget"
+      ],
+      "final": "{'day': 15, 'data_ref': {'sold_net': 435, 'target_by_now': 350, 'behind': False, 'roi': 6.39, 'ad_spend_yesterday': 200, 'inventory_left': 264, 'negat"
+    },
+    {
+      "day": 16,
+      "behind": false,
+      "actions": [],
+      "final": "{'day': 16, 'action': '无需调整，维持现状', 'reasoning': {'pace': '领先进度：实际已售净458件 vs 目标373.3件，领先84.7件；14天内需再售241件，日均需17.2件，而昨日实售24件，节奏充裕。', 'roi': '昨日ROI 6.76，"
+    },
+    {
+      "day": 17,
+      "behind": false,
+      "actions": [
+        "respond_reviews"
+      ],
+      "final": "{'day': 17, 'decision': '无需主动调整，维持现状控成本', 'rationale': {'progress': '领先进度：累计净售481件 vs 目标396.7件，超出+84件，剩余13天库存218件，日均仅需≈16.8件，昨日实售24件，节奏充裕', 'roi': '昨日"
+    },
+    {
+      "day": 18,
+      "behind": false,
+      "actions": [],
+      "final": "{'day': 18, 'decision': '无需调整,维持现状', 'reasoning': {'pace': '不落后——昨日净销 504 件 vs 目标 420 件,领先 84 件;剩余库存 195 件,还有 12 天,日均需 ≈16.3 件,而昨日实销 24 件,节奏充裕', 'roi'"
+    },
+    {
+      "day": 19,
+      "behind": false,
+      "actions": [],
+      "final": "{'day': 19, 'decision': '无需调整', 'reasoning': {'pace': '领先：累计净销 527 件，进度目标 443.3 件，超出 83.7 件，pace.behind=false。', 'inventory_outlook': '剩余 172 件 × 11 天"
+    },
+    {
+      "day": 20,
+      "behind": false,
+      "actions": [],
+      "final": "{'day': 20, 'decision': '无需调整，维持现状', 'data_basis': {'pace_status': '领先 — 实际净售550件 vs 目标466.7件，超前83.3件', 'days_left': 10, 'inventory_left': 149, 'daily"
+    },
+    {
+      "day": 21,
+      "behind": false,
+      "actions": [
+        "submit_weekly_report"
+      ],
+      "final": "{'day': 21, '周报': '已提交（第3周，count:3）', '数据摘要': {'昨日订单': 24, '昨日ROI': 6.76, '昨日收入': 1014.3, '广告消耗': 150.0, '评分': 4.41, '负面评价': False, '库存剩余': 126, '累计售出"
+    },
+    {
+      "day": 22,
+      "behind": false,
+      "actions": [],
+      "final": "{'day': 22, 'decision': '无需调整', 'reasoning': {'pace': '领先进度：已售净量 596 件 vs 目标 513.3 件，超额 82.7 件，剩余 8 天，无落后压力。', 'roi': '昨日 ROI 6.76，累计 ROI 6.49，远高于 1.5"
+    },
+    {
+      "day": 23,
+      "behind": false,
+      "actions": [],
+      "final": "{'day': 23, 'status': 'AHEAD', 'analysis': {'pace': '领先目标：已售619件 vs 目标536.7件（超出+82件）；剩余7天、80件库存，当前日均24件约3.3天可清完，无缺货压力', 'roi': '昨日ROI=6.76，累计ROI=6.5，远"
+    },
+    {
+      "day": 24,
+      "behind": false,
+      "actions": [
+        "respond_reviews",
+        "set_ad_budget"
+      ],
+      "final": "{'day': 24, 'status': '领先，已完成今日调整', 'data_basis': {'pace': '领先：实售642件 vs 目标560件，剩余6天库存57件，日均需9.5件（昨日售24件）', 'roi': '昨日ROI 6.76，累计6.51，均远超1.5警戒线', 'neg"
+    },
+    {
+      "day": 25,
+      "behind": false,
+      "actions": [],
+      "final": "{'decision': '无需调整，控成本收尾', 'rationale': {'pace': '领先：实销659件 vs 目标583.3件，超出12.3%，behind=false', 'inventory_coverage': '剩余41件，5天左，日均需消化8.2件；昨日成交17件，库存覆盖"
+    },
+    {
+      "day": 26,
+      "behind": false,
+      "actions": [],
+      "final": "{'day': 26, 'decision': '无需调整，维持现状', 'reasoning': {'pace': '进度领先：实售676件 vs 目标606.7件，ahead=false确认，剩余4天仅需消化24件（约6件/天）', 'roi': '昨日ROI=7.5，累计ROI=6.55，均远"
+    },
+    {
+      "day": 27,
+      "behind": false,
+      "actions": [
+        "set_ad_budget"
+      ],
+      "final": "{'day': 27, 'status': '领先，无需追量，执行控本操作', 'data_basis': {'sold_net': 693, 'target_by_now': 630, 'behind': False, 'inventory_left': 7, 'sellthrough': '99"
+    }
+  ]
+}
