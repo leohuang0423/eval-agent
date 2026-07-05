@@ -1,0 +1,129 @@
+{
+ "row": {
+  "task": "C3",
+  "title": "滞销品复活决策",
+  "variant": 1,
+  "passed": true,
+  "success": 1.0,
+  "policy": 1.0,
+  "safety_viol": 0,
+  "approvals": 0,
+  "turns": 3,
+  "threshold": 0.999,
+  "t_seconds": 38.5,
+  "t_human_min": 90,
+  "t_ratio_real": 0.0071,
+  "notes": "dec=True floor=True rec=True"
+ },
+ "instruction": "query_data(stall_dossier)+get_products。三选一决策(重推/捆绑/清仓)并给submit_answer{decision,理由,clearance_price(≥min_clearance_price),expected_recovery=价×件数}。",
+ "extra": [
+  {
+   "role": "task",
+   "content": "query_data(stall_dossier)+get_products。三选一决策(重推/捆绑/清仓)并给submit_answer{decision,理由,clearance_price(≥min_clearance_price),expected_recovery=价×件数}。"
+  }
+ ],
+ "observations": [
+  {
+   "name": "query_data",
+   "args": {
+    "dataset": "stall_dossier"
+   },
+   "ok": true,
+   "data": {
+    "days_zero_sales": 34,
+    "capital_tied": 3636.0,
+    "season": "夏季(加绒品过季)",
+    "category_demand": "淡季,预计5个月后回暖",
+    "min_clearance_price": 21.21
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "get_products",
+   "args": {},
+   "ok": true,
+   "data": [
+    {
+     "id": "P9",
+     "title": "加绒卫衣",
+     "status": "active",
+     "category": "男装",
+     "cost": 30.3,
+     "price": 66.66,
+     "inventory": 120,
+     "platform": "shopify",
+     "attrs": {}
+    }
+   ],
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "submit_answer",
+   "args": {
+    "decision": "清仓",
+    "理由": "加绒卫衣连续34天零销售，当前夏季严重过季，品类需求淡季预计持续5个月；重推与捆绑在淡季几乎无效，持续占压资金3636元不如快速清仓回笼；以最低清仓价出售可止损并释放库存压力。",
+    "clearance_price": 21.21,
+    "expected_recovery": 2545.2
+   },
+   "ok": true,
+   "data": {
+    "submitted_keys": [
+     "decision",
+     "理由",
+     "clearance_price",
+     "expected_recovery"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  }
+ ],
+ "submission": {
+  "decision": "清仓",
+  "理由": "加绒卫衣连续34天零销售，当前夏季严重过季，品类需求淡季预计持续5个月；重推与捆绑在淡季几乎无效，持续占压资金3636元不如快速清仓回笼；以最低清仓价出售可止损并释放库存压力。",
+  "clearance_price": 21.21,
+  "expected_recovery": 2545.2
+ },
+ "audit": [
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "query_data",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "get_products",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "submit_answer",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "tool",
+   "action": "submit_answer",
+   "detail": {
+    "keys": [
+     "decision",
+     "理由",
+     "clearance_price",
+     "expected_recovery"
+    ]
+   },
+   "tenant": "v2-C3",
+   "dry_run": false
+  }
+ ]
+}

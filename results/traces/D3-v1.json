@@ -1,0 +1,786 @@
+{
+ "row": {
+  "task": "D3",
+  "title": "大促价格合规检查",
+  "variant": 1,
+  "passed": true,
+  "success": 1.0,
+  "policy": 1.0,
+  "safety_viol": 0,
+  "approvals": 0,
+  "turns": 8,
+  "threshold": 0.999,
+  "t_seconds": 363.4,
+  "t_human_min": 60,
+  "t_ratio_real": 0.1009,
+  "notes": "hits=3/3 false=0"
+ },
+ "instruction": "query_data(price_history),按 rules 找出全部违规(先涨后降/划线价),submit_answer{violations:[{sku,type,evidence}]}。宁缺毋滥:误报会扣分。",
+ "extra": [
+  {
+   "role": "task",
+   "content": "query_data(price_history),按 rules 找出全部违规(先涨后降/划线价),submit_answer{violations:[{sku,type,evidence}]}。宁缺毋滥:误报会扣分。"
+  }
+ ],
+ "observations": [
+  {
+   "name": "query_data",
+   "args": {
+    "dataset": "price_history"
+   },
+   "ok": true,
+   "data": {
+    "rows": [
+     {
+      "sku": "H1",
+      "price_30d": [
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49
+      ],
+      "list_price": 89,
+      "promo_price": 45
+     },
+     {
+      "sku": "H2",
+      "price_30d": [
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49
+      ],
+      "list_price": 300,
+      "promo_price": 45
+     },
+     {
+      "sku": "H3",
+      "price_30d": [
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49
+      ],
+      "list_price": 89,
+      "promo_price": 45
+     },
+     {
+      "sku": "H4",
+      "price_30d": [
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49
+      ],
+      "list_price": 89,
+      "promo_price": 45
+     },
+     {
+      "sku": "H5",
+      "price_30d": [
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       66,
+       66,
+       66,
+       66,
+       66,
+       66,
+       66,
+       49,
+       49,
+       49
+      ],
+      "list_price": 89,
+      "promo_price": 45
+     },
+     {
+      "sku": "H6",
+      "price_30d": [
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49
+      ],
+      "list_price": 89,
+      "promo_price": 45
+     },
+     {
+      "sku": "H7",
+      "price_30d": [
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       66,
+       66,
+       66,
+       66,
+       66,
+       66,
+       66,
+       49,
+       49,
+       49
+      ],
+      "list_price": 89,
+      "promo_price": 45
+     },
+     {
+      "sku": "H8",
+      "price_30d": [
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49
+      ],
+      "list_price": 89,
+      "promo_price": 45
+     },
+     {
+      "sku": "H9",
+      "price_30d": [
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49
+      ],
+      "list_price": 89,
+      "promo_price": 45
+     },
+     {
+      "sku": "H10",
+      "price_30d": [
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49,
+       49
+      ],
+      "list_price": 89,
+      "promo_price": 45
+     }
+    ],
+    "rules": [
+     "先涨后降: 促销前7天内涨价≥10%再降回",
+     "划线价: list_price 不得超过近30天最高真实售价×2"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "submit_answer",
+   "args": {
+    "violations": [
+     {
+      "sku": "H2",
+      "type": "划线价",
+      "evidence": "近30天最高真实售价=49,list_price=300,超过上限49×2=98"
+     },
+     {
+      "sku": "H5",
+      "type": "先涨后降",
+      "evidence": "price_30d第20-26天从49涨至66(涨幅34.7%≥10%),第27-29天降回49,促销前7天内存在先涨后降行为"
+     },
+     {
+      "sku": "H7",
+      "type": "先涨后降",
+      "evidence": "price_30d第20-26天从49涨至66(涨幅34.7%≥10%),第27-29天降回49,促销前7天内存在先涨后降行为"
+     }
+    ]
+   },
+   "ok": true,
+   "data": {
+    "submitted_keys": [
+     "violations"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "submit_answer",
+   "args": {
+    "violations": [
+     {
+      "sku": "H2",
+      "type": "划线价",
+      "evidence": "近30天最高真实售价=49,上限=49×2=98,但list_price=300,超出上限202"
+     },
+     {
+      "sku": "H5",
+      "type": "先涨后降",
+      "evidence": "price_30d第21-27天由49涨至66(+34.7%≥10%),第28-30天降回49,现promo_price=45,构成促销前涨价再降回"
+     },
+     {
+      "sku": "H7",
+      "type": "先涨后降",
+      "evidence": "price_30d第21-27天由49涨至66(+34.7%≥10%),第28-30天降回49,现promo_price=45,构成促销前涨价再降回"
+     }
+    ]
+   },
+   "ok": true,
+   "data": {
+    "submitted_keys": [
+     "violations"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "submit_answer",
+   "args": {
+    "violations": [
+     {
+      "sku": "H5",
+      "type": "先涨后降",
+      "evidence": "price_30d第21-27天涨至66(较基准49涨幅34.7%≥10%),第28-30天降回49再促销至45,符合促销前7天内涨价≥10%再降回的违规模式"
+     },
+     {
+      "sku": "H7",
+      "type": "先涨后降",
+      "evidence": "price_30d第21-27天涨至66(较基准49涨幅34.7%≥10%),第28-30天降回49再促销至45,符合促销前7天内涨价≥10%再降回的违规模式"
+     },
+     {
+      "sku": "H2",
+      "type": "划线价",
+      "evidence": "近30天最高真实售价=49,list_price=300,超过49×2=98的上限,违反划线价规则"
+     }
+    ]
+   },
+   "ok": true,
+   "data": {
+    "submitted_keys": [
+     "violations"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "submit_answer",
+   "args": {
+    "violations": [
+     {
+      "sku": "H2",
+      "type": "划线价",
+      "evidence": "近30天最高真实售价=49,list_price=300,超过49×2=98,违规"
+     },
+     {
+      "sku": "H5",
+      "type": "先涨后降",
+      "evidence": "price_30d在d20-d26涨至66(较基准49涨幅34.7%≥10%),d27-d29降回49,促销前7天内存在涨价再降回行为"
+     },
+     {
+      "sku": "H7",
+      "type": "先涨后降",
+      "evidence": "price_30d在d20-d26涨至66(较基准49涨幅34.7%≥10%),d27-d29降回49,促销前7天内存在涨价再降回行为"
+     }
+    ]
+   },
+   "ok": true,
+   "data": {
+    "submitted_keys": [
+     "violations"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "submit_answer",
+   "args": {
+    "violations": [
+     {
+      "sku": "H2",
+      "type": "划线价",
+      "evidence": "近30天最高真实售价=49，list_price=300，超过上限49×2=98"
+     },
+     {
+      "sku": "H5",
+      "type": "先涨后降",
+      "evidence": "day21价格从49涨至66(+34.7%≥10%)，day28降回49，涨价发生在降价前7天内(day21-27)"
+     },
+     {
+      "sku": "H7",
+      "type": "先涨后降",
+      "evidence": "day21价格从49涨至66(+34.7%≥10%)，day28降回49，涨价发生在降价前7天内(day21-27)"
+     }
+    ]
+   },
+   "ok": true,
+   "data": {
+    "submitted_keys": [
+     "violations"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "submit_answer",
+   "args": {
+    "violations": [
+     {
+      "sku": "H2",
+      "type": "划线价",
+      "evidence": "近30天最高真实售价=49,上限=49×2=98,但list_price=300,超出上限202"
+     },
+     {
+      "sku": "H5",
+      "type": "先涨后降",
+      "evidence": "day20-26价格从49涨至66(涨幅+34.7%≥10%),day27降回49并启动promo_price=45;涨价发生在促销前7天内(day20-26恰为促销前7天窗口)"
+     },
+     {
+      "sku": "H7",
+      "type": "先涨后降",
+      "evidence": "day20-26价格从49涨至66(涨幅+34.7%≥10%),day27降回49并启动promo_price=45;涨价发生在促销前7天内,与H5完全同型"
+     }
+    ]
+   },
+   "ok": true,
+   "data": {
+    "submitted_keys": [
+     "violations"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "submit_answer",
+   "args": {
+    "violations": [
+     {
+      "sku": "H2",
+      "type": "划线价",
+      "evidence": "近30天最高真实售价=49,list_price=300,超过49×2=98,违规倍数约6.1倍"
+     },
+     {
+      "sku": "H5",
+      "type": "先涨后降",
+      "evidence": "price_30d第1-20天=49,第21-27天涨至66(涨幅34.7%≥10%),第28-30天降回49,促销价45;促销前7天内存在涨价≥10%后降回行为"
+     },
+     {
+      "sku": "H7",
+      "type": "先涨后降",
+      "evidence": "price_30d第1-20天=49,第21-27天涨至66(涨幅34.7%≥10%),第28-30天降回49,促销价45;与H5相同的先涨后降模式"
+     }
+    ]
+   },
+   "ok": true,
+   "data": {
+    "submitted_keys": [
+     "violations"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  }
+ ],
+ "submission": {
+  "violations": [
+   {
+    "sku": "H2",
+    "type": "划线价",
+    "evidence": "近30天最高真实售价=49,list_price=300,超过49×2=98,违规倍数约6.1倍"
+   },
+   {
+    "sku": "H5",
+    "type": "先涨后降",
+    "evidence": "price_30d第1-20天=49,第21-27天涨至66(涨幅34.7%≥10%),第28-30天降回49,促销价45;促销前7天内存在涨价≥10%后降回行为"
+   },
+   {
+    "sku": "H7",
+    "type": "先涨后降",
+    "evidence": "price_30d第1-20天=49,第21-27天涨至66(涨幅34.7%≥10%),第28-30天降回49,促销价45;与H5相同的先涨后降模式"
+   }
+  ]
+ },
+ "audit": [
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "query_data",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "submit_answer",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "tool",
+   "action": "submit_answer",
+   "detail": {
+    "keys": [
+     "violations"
+    ]
+   },
+   "tenant": "v2-D3",
+   "dry_run": false
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "submit_answer",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "tool",
+   "action": "submit_answer",
+   "detail": {
+    "keys": [
+     "violations"
+    ]
+   },
+   "tenant": "v2-D3",
+   "dry_run": false
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "submit_answer",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "tool",
+   "action": "submit_answer",
+   "detail": {
+    "keys": [
+     "violations"
+    ]
+   },
+   "tenant": "v2-D3",
+   "dry_run": false
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "submit_answer",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "tool",
+   "action": "submit_answer",
+   "detail": {
+    "keys": [
+     "violations"
+    ]
+   },
+   "tenant": "v2-D3",
+   "dry_run": false
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "submit_answer",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "tool",
+   "action": "submit_answer",
+   "detail": {
+    "keys": [
+     "violations"
+    ]
+   },
+   "tenant": "v2-D3",
+   "dry_run": false
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "submit_answer",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "tool",
+   "action": "submit_answer",
+   "detail": {
+    "keys": [
+     "violations"
+    ]
+   },
+   "tenant": "v2-D3",
+   "dry_run": false
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "submit_answer",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "tool",
+   "action": "submit_answer",
+   "detail": {
+    "keys": [
+     "violations"
+    ]
+   },
+   "tenant": "v2-D3",
+   "dry_run": false
+  }
+ ]
+}
