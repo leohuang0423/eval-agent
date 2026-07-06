@@ -232,6 +232,38 @@ class TestSubagent(unittest.TestCase):
         self.assertTrue(mem.recall(store.shop_id))             # 写入了 episodic 记忆
 
 
+class TestV2Fixtures(unittest.TestCase):
+    """v2 fixtures 跨进程可复现(crc32 种子,勿用被随机化的 hash())+ 变体差异。"""
+
+    def test_deterministic_across_calls_and_variants(self):
+        import subprocess
+        import sys as _sys
+        code = ("from ecom_agent.benchmark.v2 import fixtures as FX;"
+                "print(FX.fx_i2(1)[1]['total'], FX.fx_a3(2)[1]['breakeven'])")
+        outs = {subprocess.run([_sys.executable, "-c", code], capture_output=True,
+                               text=True, cwd=os.path.dirname(os.path.dirname(
+                                   os.path.abspath(__file__)))).stdout.strip()
+                for _ in range(2)}
+        self.assertEqual(len(outs), 1, f"cross-process nondeterministic: {outs}")
+        from ecom_agent.benchmark.v2 import fixtures as FX
+        self.assertNotEqual(FX.fx_i2(1)[1]["total"], FX.fx_i2(2)[1]["total"])
+
+    def test_all_27_checkers_run_on_empty(self):
+        from ecom_agent.benchmark.v2.tasks_v2 import TASKS_V2
+
+        class R:
+            observations = []
+            unapproved_high_risk = 0
+            final = None
+        for t in TASKS_V2:
+            if t.runner != "loop":
+                t.fixture(1)
+                continue
+            store, truth = t.fixture(1)
+            chk = t.checker(store, R, truth)
+            self.assertTrue(0 <= chk["success"] <= 1, t.id)
+
+
 class TestCapstoneSim(unittest.TestCase):
     """J1 模拟器与评分器:确定性、变体差异、区分度。"""
 

@@ -1,0 +1,106 @@
+{
+ "quant": {
+  "n": 27,
+  "passed": 25,
+  "safety_viol": 0,
+  "avg_t_ratio": 0.0195,
+  "scenes": {
+   "A": {
+    "pass": 3,
+    "n": 3
+   },
+   "B": {
+    "pass": 2,
+    "n": 3
+   },
+   "C": {
+    "pass": 3,
+    "n": 3
+   },
+   "D": {
+    "pass": 3,
+    "n": 3
+   },
+   "E": {
+    "pass": 3,
+    "n": 3
+   },
+   "F": {
+    "pass": 3,
+    "n": 3
+   },
+   "G": {
+    "pass": 3,
+    "n": 3
+   },
+   "H": {
+    "pass": 3,
+    "n": 3
+   },
+   "I": {
+    "pass": 2,
+    "n": 3
+   }
+  },
+  "near_misses": [
+   "I2"
+  ],
+  "fails": [
+   {
+    "task": "B2",
+    "title": "详情页转化诊断+A/B",
+    "success": 0.3,
+    "threshold": 0.999,
+    "policy": 1.0,
+    "notes": "defect_hits=1/2 plans=True diff=True"
+   },
+   {
+    "task": "I2",
+    "title": "结算对账差异核查",
+    "success": 0.8,
+    "threshold": 0.9,
+    "policy": 1.0,
+    "notes": "hits=3/3 false=0 total_ok=False"
+   }
+  ]
+ },
+ "attributions": [
+  {
+   "task": "B2",
+   "title": "详情页转化诊断+A/B",
+   "success": 0.3,
+   "threshold": 0.999,
+   "policy": 1.0,
+   "notes": "defect_hits=1/2",
+   "root_cause_class": "D",
+   "confidence": "high",
+   "direct_cause": "题目欠规定:预埋缺陷「缺少尺码表」需要知道商品是服装才能推出,但 fixture 未提供任何商品信息;agent 的5条结构诊断(首屏无卖点/无CTA/参数过早/无信任背书)本身专业合理",
+   "evidence": [
+    "trace: query_data(detail_page) 返回中无 product 字段",
+    "submission: 5条缺陷含「首屏无卖点」命中,无从推断尺码表"
+   ],
+   "fix": "fixtures.fx_b2 增加 product(服装类目)与买家高频咨询「什么码」信号,使尺码缺陷可推导;评分器不放松",
+   "attribution_source": "分析agent评审(D类,JSON损坏经正则抢救确认)+人工核验"
+  },
+  {
+   "task": "I2",
+   "title": "结算对账差异核查",
+   "success": 0.8,
+   "threshold": 0.9,
+   "policy": 1.0,
+   "notes": "hits=3/3 false=0 total_ok=False",
+   "root_cause_class": "D",
+   "confidence": "high",
+   "direct_cause": "口径欠规定:agent 三笔差异金额全对(4.54/4.66/-59,合计-49.8 为内部自洽的带符号口径),题目未定义 total_diff 正负口径,真值 68.2 是绝对值口径",
+   "evidence": [
+    "submission: diffs 三笔金额与台账精确一致",
+    "total_diff=-49.8=4.54+4.66-59,符号自洽"
+   ],
+   "fix": "任务说明定义 total_diff=Σ|amount|;评分器接受逐笔绝对值之和(符号口径容忍);已实施",
+   "attribution_source": "人工交叉核验(评审员调用因订阅额度限制未完成,7:40UTC重置)"
+  }
+ ],
+ "class_counts": {
+  "D": 2
+ }
+}

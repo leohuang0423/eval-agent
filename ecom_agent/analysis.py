@@ -85,12 +85,30 @@ EVALUATOR_PROMPT = """你是一个严谨的 AI-agent 评测分析师。下面是
 4. 给出对 harness 的具体修复建议(改哪个文件/提示/工具/评分器,怎么改)。
 5. 判定置信度 high/medium/low:证据直接且唯一=high;有合理替代解释=medium;猜测=low。
 
-只输出 JSON:
+只输出 JSON(注意:字符串值内部禁止出现英文双引号,引用内容改用「」,保证 JSON 合法):
 {"root_cause_class":"A|B|C|D|E","direct_cause":"...","evidence":["trace第N行: ..."],
  "fix":"...","confidence":"high|medium|low"}
 
 === TRACE ===
 """
+
+
+def _salvage(raw: str) -> dict:
+    """模型输出的 JSON 因内嵌引号等损坏时,用正则抢救关键字段。"""
+    out = {}
+    m = re.search(r'"root_cause_class"\s*:\s*"([A-E])"', raw)
+    if m:
+        out["root_cause_class"] = m.group(1)
+    m = re.search(r'"direct_cause"\s*:\s*"(.{5,300}?)(?:","|"\s*,)', raw, re.S)
+    if m:
+        out["direct_cause"] = m.group(1)
+    m = re.search(r'"confidence"\s*:\s*"(high|medium|low)"', raw)
+    if m:
+        out["confidence"] = m.group(1)
+    m = re.search(r'"fix"\s*:\s*"(.{5,400}?)(?:","|"\s*,|"\s*})', raw, re.S)
+    if m:
+        out["fix"] = m.group(1)
+    return out
 
 
 def qualitative(fails: list, variant: int, complete) -> list:
@@ -105,6 +123,8 @@ def qualitative(fails: list, variant: int, complete) -> list:
         prompt = EVALUATOR_PROMPT + _condense_trace(tr)
         resp = complete("", [{"role": "user", "content": prompt}], [])
         data = resp.get("final", resp)
+        if isinstance(data, dict) and "raw" in data and "root_cause_class" not in data:
+            data = _salvage(str(data["raw"])) or data   # JSON 损坏 → 正则抢救
         if not isinstance(data, dict) or "root_cause_class" not in data:
             data = {"root_cause_class": "?", "direct_cause": str(data)[:200],
                     "confidence": "low"}

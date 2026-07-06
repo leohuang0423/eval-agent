@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import random
+import zlib
 
 from ...env.store import Store, Product, Order, Review, seed_store
 
@@ -23,7 +24,9 @@ class V2Store(Store):
 
 
 def _base(variant: int, task: str) -> tuple[V2Store, random.Random]:
-    r = random.Random(hash((task, variant)) & 0xFFFFFF)
+    # 注意:不能用 hash()(字符串 hash 每进程随机化,破坏跨进程可复现)
+    seed = zlib.crc32(f"{task}-{variant}".encode())
+    r = random.Random(seed)
     s = V2Store(shop_id=f"v2-{task}")
     return s, r
 
@@ -109,11 +112,14 @@ def fx_b2(variant):
     s, r = _base(variant, "B2")
     defects = ["缺少尺码表", "首屏无核心卖点"]
     s.datasets["detail_page"] = {
+        "product": {"title": "法式碎花连衣裙", "category": "女装/连衣裙",
+                    "note": "服装类目,尺码是购买决策关键信息"},
         "sections": [{"pos": 1, "type": "banner", "content": "品牌故事横幅(无卖点文案)"},
                      {"pos": 2, "type": "gallery", "content": "6张场景图"},
                      {"pos": 3, "type": "params", "content": "面料参数表"},
                      {"pos": 4, "type": "reviews", "content": "买家秀"}],
-        "funnel": {"detail_bounce_rate": 0.72, "category_avg_bounce": 0.45}}
+        "funnel": {"detail_bounce_rate": 0.72, "category_avg_bounce": 0.45,
+                   "top_exit_question": "买家咨询高频词: 什么码/会不会小"}}
     return s, {"defects": defects}
 
 
