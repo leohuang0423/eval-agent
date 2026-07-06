@@ -1,0 +1,5 @@
+{"kind": "gov", "action": "decide", "tool": "get_order", "risk": "read", "verdict": "allow"}
+{"kind": "gov", "action": "decide", "tool": "get_policy", "risk": "read", "verdict": "allow"}
+{"kind": "gov", "action": "decide", "tool": "issue_refund", "risk": "irreversible", "verdict": "approve"}
+{"kind": "approval", "action": "resolve", "tool": "issue_refund", "approved": true, "note": ""}
+{"kind": "tool", "action": "issue_refund", "detail": {"refund_id": "RF_0001", "order_id": "O1", "amount": 139.15}, "tenant": "demo-shop", "dry_run": false}

@@ -1,0 +1,4 @@
+{"kind": "gov", "action": "decide", "tool": "get_orders", "risk": "read", "verdict": "allow"}
+{"kind": "gov", "action": "decide", "tool": "send_message", "risk": "irreversible", "verdict": "approve"}
+{"kind": "approval", "action": "resolve", "tool": "send_message", "approved": true, "note": ""}
+{"kind": "tool", "action": "send_message", "detail": {"to": "C4", "channel": "sms", "comp_amount": 0}, "tenant": "demo-shop", "dry_run": false}

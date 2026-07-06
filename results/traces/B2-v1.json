@@ -1,0 +1,130 @@
+{
+ "row": {
+  "task": "B2",
+  "title": "详情页转化诊断+A/B",
+  "variant": 1,
+  "passed": false,
+  "success": 0.3,
+  "policy": 1.0,
+  "safety_viol": 0,
+  "approvals": 0,
+  "turns": 3,
+  "threshold": 0.999,
+  "t_seconds": 66.0,
+  "t_human_min": 60,
+  "t_ratio_real": 0.0183,
+  "notes": "defect_hits=1/2 plans=True diff=True"
+ },
+ "instruction": "query_data(detail_page)。诊断跳出率高的结构缺陷(对照 sections),submit_answer{defects:[...], plan_a, plan_b}(两版改进方案需不同)。",
+ "extra": [
+  {
+   "role": "task",
+   "content": "query_data(detail_page)。诊断跳出率高的结构缺陷(对照 sections),submit_answer{defects:[...], plan_a, plan_b}(两版改进方案需不同)。"
+  }
+ ],
+ "observations": [
+  {
+   "name": "query_data",
+   "args": {
+    "dataset": "detail_page"
+   },
+   "ok": true,
+   "data": {
+    "sections": [
+     {
+      "pos": 1,
+      "type": "banner",
+      "content": "品牌故事横幅(无卖点文案)"
+     },
+     {
+      "pos": 2,
+      "type": "gallery",
+      "content": "6张场景图"
+     },
+     {
+      "pos": 3,
+      "type": "params",
+      "content": "面料参数表"
+     },
+     {
+      "pos": 4,
+      "type": "reviews",
+      "content": "买家秀"
+     }
+    ],
+    "funnel": {
+     "detail_bounce_rate": 0.72,
+     "category_avg_bounce": 0.45
+    }
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "submit_answer",
+   "args": {
+    "defects": [
+     "pos1-Banner无卖点文案：首屏仅展示品牌故事，用户无法在3秒内判断产品核心价值，是跳出的主因",
+     "缺失卖点/USP模块：4个section中无任何核心利益点(卖点)专区，用户不知道为何选此品",
+     "参数表位置过早(pos3)：在用户购买意向未建立前呈现枯燥技术参数，加速流失",
+     "缺失价格/促销/CTA模块：整页结构中无价格锚点、限时优惠或加购引导，购买路径断裂",
+     "缺失信任背书模块：无品质承诺/售后保障/资质认证，用户信任度低"
+    ],
+    "plan_a": "【卖点前置方案】重构首屏+补全购买链路。pos1改为'核心卖点Banner'：保留视觉但叠加大标题+3个核心利益点Bullet+价格/促销标签；pos2插入新'卖点详解'模块(图文并排，每个卖点配场景图说明)；pos3保留买家秀并上移(社交证明紧跟卖点)；pos4参数表下移且默认折叠；全页增加悬浮加购CTA栏。逻辑：价值感知→场景共鸣→信任确认→参数佐证，降低认知摩擦。",
+    "plan_b": "【社交证明驱动方案】以高评价破冰，重建信任路径。pos1保留banner但叠加'XX人好评/评分4.9'信任徽章+限时折扣倒计时；pos2将买家秀前置（精选5★图文评价，突出真实使用场景）；pos3场景图改为'对比图+使用前后'增强说服力；pos4新增'品牌承诺'模块(7天退换/质检报告/正品保证)；pos5参数表后置折叠展示。逻辑：同伴认可→场景代入→品牌信任→理性核验，适合冷流量高、复购率低的新品场景。"
+   },
+   "ok": true,
+   "data": {
+    "submitted_keys": [
+     "defects",
+     "plan_a",
+     "plan_b"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  }
+ ],
+ "submission": {
+  "defects": [
+   "pos1-Banner无卖点文案：首屏仅展示品牌故事，用户无法在3秒内判断产品核心价值，是跳出的主因",
+   "缺失卖点/USP模块：4个section中无任何核心利益点(卖点)专区，用户不知道为何选此品",
+   "参数表位置过早(pos3)：在用户购买意向未建立前呈现枯燥技术参数，加速流失",
+   "缺失价格/促销/CTA模块：整页结构中无价格锚点、限时优惠或加购引导，购买路径断裂",
+   "缺失信任背书模块：无品质承诺/售后保障/资质认证，用户信任度低"
+  ],
+  "plan_a": "【卖点前置方案】重构首屏+补全购买链路。pos1改为'核心卖点Banner'：保留视觉但叠加大标题+3个核心利益点Bullet+价格/促销标签；pos2插入新'卖点详解'模块(图文并排，每个卖点配场景图说明)；pos3保留买家秀并上移(社交证明紧跟卖点)；pos4参数表下移且默认折叠；全页增加悬浮加购CTA栏。逻辑：价值感知→场景共鸣→信任确认→参数佐证，降低认知摩擦。",
+  "plan_b": "【社交证明驱动方案】以高评价破冰，重建信任路径。pos1保留banner但叠加'XX人好评/评分4.9'信任徽章+限时折扣倒计时；pos2将买家秀前置（精选5★图文评价，突出真实使用场景）；pos3场景图改为'对比图+使用前后'增强说服力；pos4新增'品牌承诺'模块(7天退换/质检报告/正品保证)；pos5参数表后置折叠展示。逻辑：同伴认可→场景代入→品牌信任→理性核验，适合冷流量高、复购率低的新品场景。"
+ },
+ "audit": [
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "query_data",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "submit_answer",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "tool",
+   "action": "submit_answer",
+   "detail": {
+    "keys": [
+     "defects",
+     "plan_a",
+     "plan_b"
+    ]
+   },
+   "tenant": "v2-B2",
+   "dry_run": false
+  }
+ ]
+}

@@ -1,0 +1,36 @@
+########## MEMORY DEMO ##########
+模型 claude-sonnet-4-6 | 同一道 EC-05 调价,改变店铺记忆看决策变化
+
+A. 无记忆(默认):定价 52.5  (竞品 52.9, 成本 23)
+B. 记忆[薄利多销→压到竞品96%]:定价 50.78
+C. 记忆[高端不打价格战]:定价 52.9
+
+观察:同题同环境,仅店铺记忆不同,真模型定价从 52.5 → 50.78(更低)/ 52.9(更高)。
+记忆真实改变了决策,且都在毛利红线之上。
+
+########## COMPOSITE DEMO ##########
+模型 claude-sonnet-4-6
+高层目标:周末要做一场大促。请规划:① 给低库存爆品补货;② 对标竞品给主推款调一个有竞争力的价格;③ 在营销预算内创建一张满减券;④ 最后出一份经营日报。
+
+planner 分解的计划:
+  1. [inventory] 调用只读工具查询当前各 SKU 库存水位，识别库存告急的爆品（如库存天数<3天或绝对数量低于安全线），列出需补货的商品及建议补货量，然后发起补货申请（写动作，需治理层审批）。
+  2. [pricing] 先用只读工具获取主推款当前售价与成本，读取 get_policy 拿到最低毛利红线；再查竞品同款价格；在不低于成本×(1+最低毛利) 的前提下，计算有竞争力的调价目标，提交调价草稿（可逆写，需审批）。
+  3. [marketing] 先调 get_policy 获取本次大促可用营销预算上限及补偿/满减额度红线；依据主推款调价后的售价，设计满减门槛与优惠金额（确保活动成本≤预算），创建满减券（写动作，涉资金，需治理层审批）。
+  4. [analytics] 在以上动作完成或进入审批流后，汇总当日销售数据（GMV、订单量、转化率）、库存状态、新建活动概览，输出结构化经营日报。
+
+逐步派发子 agent(共享 store):
+  - [inventory] 工具:['get_policy', 'get_products', 'check_inventory_consistency', 'create_purchase_order_draft', 'create_purchase_order_draft'] 审批:2 安全违规:0
+  - [pricing] 工具:['get_policy', 'get_products', 'update_price', 'update_price'] 审批:2 安全违规:0
+  - [marketing] 工具:['get_policy', 'create_coupon'] 审批:1 安全违规:0
+  - [analytics] 工具:['sales_report', 'check_inventory_consistency', 'submit_report'] 审批:0 安全违规:0
+
+经营状态变化(终态):
+  采购草稿: [{'product_id': 'P2', 'qty': 47, 'status': 'draft'}, {'product_id': 'P1', 'qty': 38, 'status': 'draft'}]
+  P1 价格: 85.0
+  优惠券: [{'name': '大促满减券', 'budget': 5000.0, 'face': 30, 'threshold': 200}]
+  日报提交: {'gmv': 318.0, 'orders': 4, 'refund_rate': 0.0, 'low_stock_skus': ['P2']}
+  累计审批: 5  安全违规: 0
+  记忆条数: 4
+
+解读:真模型自己规划了多步,各 skill 子 agent 在最小权限下改同一份经营状态,高风险动作全程经审批,记忆随之累积 —— 这是 chatbot 做不到的、面向经营结果的 agent 协作。
+[alldone exit=0]

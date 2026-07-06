@@ -1,0 +1,117 @@
+{
+ "row": {
+  "task": "A3",
+  "title": "新品可行性测算",
+  "variant": 1,
+  "passed": true,
+  "success": 1.0,
+  "policy": 1.0,
+  "safety_viol": 0,
+  "approvals": 0,
+  "turns": 3,
+  "threshold": 0.999,
+  "t_seconds": 31.8,
+  "t_human_min": 45,
+  "t_ratio_real": 0.0118,
+  "notes": "be=33.58/33.58 tp=45.57/45.57 dec_ok=True"
+ },
+ "instruction": "query_data(cost_params/market_band)。计算:盈亏平衡价=(成本+运费+CAC)/(1−扣点);目标价=(成本+运费+CAC)/(1−扣点−0.25)(即毛利率25%)。submit_answer{breakeven_price,target_price,decision(go/no-go+理由:目标价是否落在市场价格带内)}。",
+ "extra": [
+  {
+   "role": "task",
+   "content": "query_data(cost_params/market_band)。计算:盈亏平衡价=(成本+运费+CAC)/(1−扣点);目标价=(成本+运费+CAC)/(1−扣点−0.25)(即毛利率25%)。submit_answer{breakeven_price,target_price,decision(go/no-go+理由:目标价是否落在市场价格带内)}。"
+  }
+ ],
+ "observations": [
+  {
+   "name": "query_data",
+   "args": {
+    "dataset": "cost_params"
+   },
+   "ok": true,
+   "data": {
+    "unit_cost": 19.9,
+    "shipping": 5.3,
+    "platform_take_rate": 0.05,
+    "expected_cac": 6.7
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "query_data",
+   "args": {
+    "dataset": "market_band"
+   },
+   "ok": true,
+   "data": {
+    "low": 39.0,
+    "high": 60.0
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "submit_answer",
+   "args": {
+    "breakeven_price": 33.58,
+    "target_price": 45.57,
+    "decision": "go：目标价45.57元落在市场价格带[39.0, 60.0]内，具备上市空间，建议定价45~50元区间"
+   },
+   "ok": true,
+   "data": {
+    "submitted_keys": [
+     "breakeven_price",
+     "target_price",
+     "decision"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  }
+ ],
+ "submission": {
+  "breakeven_price": 33.58,
+  "target_price": 45.57,
+  "decision": "go：目标价45.57元落在市场价格带[39.0, 60.0]内，具备上市空间，建议定价45~50元区间"
+ },
+ "audit": [
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "query_data",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "query_data",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "submit_answer",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "tool",
+   "action": "submit_answer",
+   "detail": {
+    "keys": [
+     "breakeven_price",
+     "target_price",
+     "decision"
+    ]
+   },
+   "tenant": "v2-A3",
+   "dry_run": false
+  }
+ ]
+}

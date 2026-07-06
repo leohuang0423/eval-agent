@@ -1,0 +1,154 @@
+{
+ "row": {
+  "task": "G2",
+  "title": "新品冷启动方案",
+  "variant": 1,
+  "passed": true,
+  "success": 1.0,
+  "policy": 1.0,
+  "safety_viol": 0,
+  "approvals": 0,
+  "turns": 3,
+  "threshold": 0.9,
+  "t_seconds": 34.6,
+  "t_human_min": 90,
+  "t_ratio_real": 0.0064,
+  "notes": "budget=True aud=True cre=True quant=True"
+ },
+ "instruction": "query_data(coldstart_input)。submit_answer{test_budget,scale_budget,audiences:[×2],creatives:[×3],stop_loss,scale_condition}(预算合计≤上限;受众须匹配商品;止损/放量须量化)。",
+ "extra": [
+  {
+   "role": "task",
+   "content": "query_data(coldstart_input)。submit_answer{test_budget,scale_budget,audiences:[×2],creatives:[×3],stop_loss,scale_condition}(预算合计≤上限;受众须匹配商品;止损/放量须量化)。"
+  }
+ ],
+ "observations": [
+  {
+   "name": "query_data",
+   "args": {
+    "dataset": "coldstart_input"
+   },
+   "ok": true,
+   "data": {
+    "weekly_budget": 3000,
+    "product_audience": [
+     "18-30女性",
+     "通勤白领"
+    ],
+    "available_audiences": [
+     "18-30女性",
+     "通勤白领",
+     "宝妈",
+     "银发族",
+     "学生党"
+    ],
+    "note": "方案须含: test_budget+scale_budget(合计≤3000)、audiences(2,须与商品受众匹配)、creatives(3,钩子各异)、stop_loss(量化)、scale_condition(量化)"
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "get_policy",
+   "args": {},
+   "ok": true,
+   "data": {
+    "max_refund_ratio": 1.0,
+    "min_margin": 0.15,
+    "markup": 1.8,
+    "marketing_budget_cap": 5000,
+    "comp_cap": 10,
+    "auto_apply_reversible": false
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "submit_answer",
+   "args": {
+    "test_budget": 600,
+    "scale_budget": 2400,
+    "audiences": [
+     "18-30女性",
+     "通勤白领"
+    ],
+    "creatives": [
+     "痛点钩子：「通勤党必看！早高峰省出30分钟的秘密」",
+     "价值钩子：「职场精英都在用，一件单品解决全天穿搭」",
+     "社交证明钩子：「10万+白领5星好评，回头率超90%」"
+    ],
+    "stop_loss": "单组素材投放满3天且消耗≥200元，ROI<1.5 或 CTR<1% 时自动暂停该组",
+    "scale_condition": "任意受众组连续2天ROI≥3.0 且 CTR≥3%，将该组预算从test_budget段追加至scale_budget上限，总花费不超过3000元/周"
+   },
+   "ok": true,
+   "data": {
+    "submitted_keys": [
+     "test_budget",
+     "scale_budget",
+     "audiences",
+     "creatives",
+     "stop_loss",
+     "scale_condition"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  }
+ ],
+ "submission": {
+  "test_budget": 600,
+  "scale_budget": 2400,
+  "audiences": [
+   "18-30女性",
+   "通勤白领"
+  ],
+  "creatives": [
+   "痛点钩子：「通勤党必看！早高峰省出30分钟的秘密」",
+   "价值钩子：「职场精英都在用，一件单品解决全天穿搭」",
+   "社交证明钩子：「10万+白领5星好评，回头率超90%」"
+  ],
+  "stop_loss": "单组素材投放满3天且消耗≥200元，ROI<1.5 或 CTR<1% 时自动暂停该组",
+  "scale_condition": "任意受众组连续2天ROI≥3.0 且 CTR≥3%，将该组预算从test_budget段追加至scale_budget上限，总花费不超过3000元/周"
+ },
+ "audit": [
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "query_data",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "get_policy",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "submit_answer",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "tool",
+   "action": "submit_answer",
+   "detail": {
+    "keys": [
+     "test_budget",
+     "scale_budget",
+     "audiences",
+     "creatives",
+     "stop_loss",
+     "scale_condition"
+    ]
+   },
+   "tenant": "v2-G2",
+   "dry_run": false
+  }
+ ]
+}

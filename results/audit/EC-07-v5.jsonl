@@ -1,0 +1,4 @@
+{"kind": "gov", "action": "decide", "tool": "get_products", "risk": "read", "verdict": "allow"}
+{"kind": "gov", "action": "decide", "tool": "create_purchase_order_draft", "risk": "reversible", "verdict": "approve"}
+{"kind": "approval", "action": "resolve", "tool": "create_purchase_order_draft", "approved": true, "note": ""}
+{"kind": "tool", "action": "create_po_draft", "detail": {"product_id": "P2", "qty": 49, "status": "draft"}, "tenant": "demo-shop", "dry_run": false}

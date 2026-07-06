@@ -1,0 +1,4 @@
+{"kind": "gov", "action": "decide", "tool": "get_policy", "risk": "read", "verdict": "allow"}
+{"kind": "gov", "action": "decide", "tool": "create_coupon", "risk": "irreversible", "verdict": "approve"}
+{"kind": "approval", "action": "resolve", "tool": "create_coupon", "approved": true, "note": ""}
+{"kind": "tool", "action": "create_coupon", "detail": {"name": "周末满减促销活动", "budget": 5000.0, "face": 50, "threshold": 300}, "tenant": "demo-shop", "dry_run": false}

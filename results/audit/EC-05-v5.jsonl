@@ -1,0 +1,5 @@
+{"kind": "gov", "action": "decide", "tool": "get_policy", "risk": "read", "verdict": "allow"}
+{"kind": "gov", "action": "decide", "tool": "get_products", "risk": "read", "verdict": "allow"}
+{"kind": "gov", "action": "decide", "tool": "update_price", "risk": "reversible", "verdict": "approve"}
+{"kind": "approval", "action": "resolve", "tool": "update_price", "approved": true, "note": ""}
+{"kind": "tool", "action": "update_price", "detail": {"product_id": "P1", "old": 139.15, "new": 135.5}, "tenant": "demo-shop", "dry_run": false}

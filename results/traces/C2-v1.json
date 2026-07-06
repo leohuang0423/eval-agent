@@ -1,0 +1,95 @@
+{
+ "row": {
+  "task": "C2",
+  "title": "转化漏斗异常定位",
+  "variant": 1,
+  "passed": true,
+  "success": 1.0,
+  "policy": 1.0,
+  "safety_viol": 0,
+  "approvals": 0,
+  "turns": 3,
+  "threshold": 0.999,
+  "t_seconds": 24.8,
+  "t_human_min": 60,
+  "t_ratio_real": 0.0069,
+  "notes": "cause_ok=True fix_ok=True"
+ },
+ "instruction": "query_data(funnel_7d)。曝光升但转化跌,数据里只有一个变量能解释。submit_answer{root_cause, fix}。不许给'多因素都可能'的和稀泥结论。",
+ "extra": [
+  {
+   "role": "task",
+   "content": "query_data(funnel_7d)。曝光升但转化跌,数据里只有一个变量能解释。submit_answer{root_cause, fix}。不许给'多因素都可能'的和稀泥结论。"
+  }
+ ],
+ "observations": [
+  {
+   "name": "query_data",
+   "args": {
+    "dataset": "funnel_7d"
+   },
+   "ok": true,
+   "data": {
+    "impressions": "+30%",
+    "ctr": "持平",
+    "cvr": "-40%",
+    "competitor_price_change": "持平",
+    "top_review": "质量差,起球严重(置顶,赞32)",
+    "my_price_change": "无调整",
+    "detail_page_change": "无"
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  },
+  {
+   "name": "submit_answer",
+   "args": {
+    "root_cause": "置顶差评（'质量差，起球严重'，32赞）拉崩转化率：曝光+30%、CTR持平说明流量质量正常、详情页未变、竞品价格未动、自身价格未动，唯一发生变化且能解释CVR-40%的变量是该置顶负评——用户进详情页后被高赞差评劝退",
+    "fix": "立即处理置顶差评：①核查该批次商品起球质量问题是否属实并启动品控整改；②联系该买家妥善解决，争取修改或追加正评；③同步邀请近期满意买家留下真实好评以稀释负评权重；④若质量问题属实，在详情页增加材质说明和洗护指引降低预期差"
+   },
+   "ok": true,
+   "data": {
+    "submitted_keys": [
+     "root_cause",
+     "fix"
+    ]
+   },
+   "error": null,
+   "executed": true,
+   "approved": null
+  }
+ ],
+ "submission": {
+  "root_cause": "置顶差评（'质量差，起球严重'，32赞）拉崩转化率：曝光+30%、CTR持平说明流量质量正常、详情页未变、竞品价格未动、自身价格未动，唯一发生变化且能解释CVR-40%的变量是该置顶负评——用户进详情页后被高赞差评劝退",
+  "fix": "立即处理置顶差评：①核查该批次商品起球质量问题是否属实并启动品控整改；②联系该买家妥善解决，争取修改或追加正评；③同步邀请近期满意买家留下真实好评以稀释负评权重；④若质量问题属实，在详情页增加材质说明和洗护指引降低预期差"
+ },
+ "audit": [
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "query_data",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "gov",
+   "action": "decide",
+   "tool": "submit_answer",
+   "risk": "read",
+   "verdict": "allow"
+  },
+  {
+   "kind": "tool",
+   "action": "submit_answer",
+   "detail": {
+    "keys": [
+     "root_cause",
+     "fix"
+    ]
+   },
+   "tenant": "v2-C2",
+   "dry_run": false
+  }
+ ]
+}
